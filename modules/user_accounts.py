@@ -3,10 +3,10 @@ from pylatex import *
 from pylatex.utils import *
 
 
-def user_accounts(doc: Document, datalocation: str):
+def user_accounts(doc: Document, data_location: str):
     '''This is the main function for this module'''
 
-    with open(f'{datalocation}/user_accounts/user_accounts.json') as json_file:
+    with open(f'{data_location}/user_accounts/user_accounts.json') as json_file:
         data_dict = json.load(json_file)
 
     # New Page for this Chapter

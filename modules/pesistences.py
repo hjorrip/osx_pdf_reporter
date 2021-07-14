@@ -33,7 +33,24 @@ def persistences(doc: Document, data_location: str):
     hooks_subsection(doc, data_dict)
     at_jobs_subsection(doc, data_dict)
     emond_clients_subsection(doc, data_dict)
+    configuration_profiles_subsection(doc, data_dict)
 
+def configuration_profiles_subsection(doc: Document, data_dict: dict):
+    with doc.create(Subsection('Configuration Profiles')):
+        doc.append("Profiles are intended for organizational use to allow IT admins to manage machines "
+                   "for their users, but their potential for misuse has already been spotted by malware authors. "
+                   "Configuration profiles can force a user to use certain browser settings, DNS proxy settings, "
+                   "VPN settings and more.\n")
+        doc.append(NewLine())
+
+        doc.append("Configuration Profiles are NOT on a host system by default. The contents of each  "
+                   "profile should be carefully inspected.\n")
+        doc.append(NewLine())
+        configuration_profiles_data_list = data_dict["configuration_profiles"]["data"]
+
+        doc.append("Number of configuration_profiles detected: ")
+        # TODO: Add a configuration_profiles to the system and update the report to include more details when detected
+        doc.append(bold(str(len(configuration_profiles_data_list))))
 
 def emond_clients_subsection(doc: Document, data_dict: dict):
     with doc.create(Subsection('Emond Clients')):

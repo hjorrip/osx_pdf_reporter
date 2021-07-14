@@ -31,7 +31,25 @@ def persistences(doc: Document, data_location: str):
     login_items_subsection(doc, data_dict)
     periodics_subsection(doc, data_dict)
     hooks_subsection(doc, data_dict)
+    at_jobs_subsection(doc, data_dict)
 
+
+def at_jobs_subsection(doc: Document, data_dict: dict):
+    with doc.create(Subsection('At jobs')):
+        doc.append("A much less well-known mechanism is at jobs. While these only run once and are not "
+                   "enabled by default, they are a sneaky way to run some code on restart. "
+                   "The single- use isn't really a problem, since the at job can simply be re-written "
+                   "each time the persistence mechanism fires, and these jobs are very unlikely to be "
+                   "noticed by most users or indeed many less-experienced admins.\n")
+        doc.append(NewLine())
+
+        doc.append("At jobs are not used by the OS by default. All At jobs should be carefully inspected. \n")
+        doc.append(NewLine())
+        at_jobs_data_list = data_dict["at_jobs"]["data"]
+
+        doc.append("Number of at jobs detected: ")
+        # TODO: Add a at job to the system and update the report to include more details on found at jobs
+        doc.append(bold(str(len(at_jobs_data_list))))
 
 
 def hooks_subsection(doc: Document, data_dict: dict):

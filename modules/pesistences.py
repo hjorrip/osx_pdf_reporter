@@ -32,6 +32,27 @@ def persistences(doc: Document, data_location: str):
     periodics_subsection(doc, data_dict)
     hooks_subsection(doc, data_dict)
     at_jobs_subsection(doc, data_dict)
+    emond_clients_subsection(doc, data_dict)
+
+
+def emond_clients_subsection(doc: Document, data_dict: dict):
+    with doc.create(Subsection('Emond Clients')):
+        doc.append("Sometime around OSX 10.5 Leopard, Apple introduced a logging mechanism called emond. "
+                   "It appears it was never fully developed, and development may have been abandoned by "
+                   "Apple for other mechanisms, but it remains available even on macOS 10.15 Catalina. "
+                   "This little-known service may not be much use to a Mac admin, but to a threat actor "
+                   "one very good reason would be to use it as a persistence mechanism that most macOS "
+                   "admins probably wouldn't know to look for.\n")
+        doc.append(NewLine())
+
+        doc.append("As emond is almost certainly not used in your environment for any legitimate reason, "
+                   "anything found in the emondClient directory should be treated as suspicious.\n")
+        doc.append(NewLine())
+        emond_clients_data_list = data_dict["emond_clients"]["data"]
+
+        doc.append("Number of emond clients detected: ")
+        # TODO: Add a emond client data to the system and update the report to include more details when detected
+        doc.append(bold(str(len(emond_clients_data_list))))
 
 
 def at_jobs_subsection(doc: Document, data_dict: dict):

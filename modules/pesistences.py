@@ -29,6 +29,64 @@ def persistences(doc: Document, data_location: str):
     launch_daemons_subsection(doc, data_dict)
     cron_tabs_subsection(doc, data_dict)
     kernel_extensions_subsection(doc, data_dict)
+    login_items_subsection(doc, data_dict)
+
+def login_items_subsection(doc: Document, data_dict: dict):
+    with doc.create(Subsection('Login Items')):
+        doc.append("Changes made by Apple to Login Items have, resulted in more attractive opportunities "
+                   "for malware persistence. Once upon a time, Login Items were easily enumerated through "
+                   "the System Preferences utility, but a newer mechanism makes it possible for any installed "
+                   "application to launch itself at login time simply by including a Login Item in its own bundle. "
+                   "While the intention of this mechanism is for legitimate developers to offer control of "
+                   "the login item through the app's user interface, unscrupulous developers of commodity adware "
+                   "and PUP software have been abusing this as a persistence trick as it's very difficult for "
+                   "users to reliably enumerate which applications actually contain a bundled login item.\n")
+        doc.append(NewLine())
+
+        doc.append('The following Login Items were located on the host machine and checked if they carry '
+                   'a valid and recognized code signature. Although some legit programs use unsigned Login Items,'
+                   'all should be thoroughly checked and validated.')
+        doc.append('\n')
+
+        login_items_list = data_dict["login_items"]["data"]
+
+        # Generate data table
+        with doc.create(LongTable("l|c", row_height=1.5)) as data_table:
+            headers = ["File Path", "Codesign"]
+            data_table.add_hline()
+            data_table.add_row(headers, mapper=bold)
+            data_table.add_hline()
+            data_table.end_table_header()
+            data_table.add_hline()
+            data_table.add_row((MultiColumn(len(headers), align='r',
+                                            data=italic('Continued on Next Page')),))
+            data_table.end_table_footer()
+            data_table.add_hline()
+            data_table.add_row((MultiColumn(len(headers), align='r',
+                                            data=''),))
+            data_table.end_table_last_footer()
+
+            unsigned_items = []
+
+            for li in login_items_list:
+
+                verification = li['codesign']['verification']
+                if 'valid on disk' in verification[0]:
+                    signature = 'signed'
+                else:
+                    signature = 'unsigned'
+
+                    unsigned_items.append(li)
+
+                data_table.add_row([li['path'], signature])
+
+        if len(unsigned_items) == 0:
+            doc.append(bold('No unsigned login items detected.'))
+
+        # The info.plist are quite too large to include in the report.
+        else:
+            doc.append("Number of unsigned login items detected: ")
+            doc.append(bold(str(len(unsigned_items))))
 
 
 def kernel_extensions_subsection(doc: Document, data_dict: dict):
@@ -81,7 +139,7 @@ def kernel_extensions_subsection(doc: Document, data_dict: dict):
                 data_table.add_row([kex_details['path'], signature])
 
         if len(unsigned_kex) == 0:
-            doc.append(bold('No unsigned kernel extensions detected'))
+            doc.append(bold('No unsigned kernel extensions detected.'))
 
         # The info.plist are quite too large to include in the report.
         else:

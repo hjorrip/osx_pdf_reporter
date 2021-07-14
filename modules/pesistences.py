@@ -1,4 +1,6 @@
 import json
+from datetime import datetime
+
 from pylatex import *
 from pylatex.utils import *
 
@@ -30,6 +32,68 @@ def persistences(doc: Document, data_location: str):
     cron_tabs_subsection(doc, data_dict)
     kernel_extensions_subsection(doc, data_dict)
     login_items_subsection(doc, data_dict)
+    periodics_subsection(doc, data_dict)
+
+
+def periodics_subsection(doc: Document, data_dict: dict):
+    with doc.create(Subsection('Periodics')):
+        doc.append("Periodics are system scripts that are generally used or maintenance and run on daily, "
+                   "weekly and monthly schedule. Unless admins are using their own custom periodic "
+                   "scripts, anything showing a different metadata than the core default periodics "
+                   "should be treated as suspicious and inspected.\n")
+        doc.append(NewLine())
+
+        periodics = data_dict["periodics"]["data"]
+
+        for periodic in periodics:
+            interval = next(iter(periodic))
+            if interval == "daily":
+                list_of_daily_periodics = periodic['daily']
+            elif interval == "weekly":
+                list_of_weekly_periodics = periodic['weekly']
+            elif interval == "monthly":
+                list_of_monthly_periodics = periodic['monthly']
+
+
+        # Generate data table
+        with doc.create(LongTable("l|c|c", row_height=1.5)) as data_table:
+            headers = ["File Path", "Periodic", "Last Modified"]
+            data_table.add_hline()
+            data_table.add_row(headers, mapper=bold)
+            data_table.add_hline()
+            data_table.end_table_header()
+            data_table.add_hline()
+            data_table.add_row((MultiColumn(len(headers), align='r',
+                                            data=italic('Continued on Next Page')),))
+            data_table.end_table_footer()
+            data_table.add_hline()
+            data_table.add_row((MultiColumn(len(headers), align='r',
+                                            data=''),))
+            data_table.end_table_last_footer()
+
+            # Create a set of last modified values. Set's can only hold unique values, so if in the end
+            # It only holds a single value, all of the file shave the same last_modified date.
+            last_modified_set = set()
+
+            for periodic in list_of_daily_periodics:
+                data_table.add_row([periodic['metadata']['file_path'], "daily", periodic['metadata']['last_modified']])
+                last_modified_set.add(periodic['metadata']['last_modified'])
+            for periodic in list_of_weekly_periodics:
+                data_table.add_row([periodic['metadata']['file_path'], "weekly", periodic['metadata']['last_modified']])
+                last_modified_set.add(periodic['metadata']['last_modified'])
+            for periodic in list_of_monthly_periodics:
+                data_table.add_row([periodic['metadata']['file_path'], "monthly", periodic['metadata']['last_modified']])
+                last_modified_set.add(periodic['metadata']['last_modified'])
+
+        doc.append("Datetime consistancy check: ")
+        if len(last_modified_set) < 2:
+            doc.append(bold("Passed"))
+        else:
+            doc.append(bold("Failed"))
+
+
+
+
 
 def login_items_subsection(doc: Document, data_dict: dict):
     with doc.create(Subsection('Login Items')):

@@ -31,70 +31,126 @@ def persistences(doc: Document, data_location: str):
 
 
 def launch_daemons_subsection(doc: Document, data_dict: dict):
-    pass
+    with doc.create(Subsection('LaunchDaemons')):
+        doc.append("LaunchDaemons only exist at the computer and system level, and "
+                   "technically are reserved for persistent code that does not interact with the user - "
+                   "perfect for malware. The bar is raised for attackers as writing a daemon "
+                   "to /Library/LaunchDaemons requires administrator level privileges. "
+                   "However, since most Mac users are also admin users and habitually provide authorisation "
+                   "for software to install components whenever asked, the bar is not all that high and is "
+                   "regularly cleared by infections we see in the wild.\n")
+        doc.append('\n')
+        
+        launch_daemons = data_dict["launch_daemons"]["data"]
+
+        # Generate data table
+        with doc.create(LongTable("l|c", row_height=1.5)) as data_table:
+            headers = ["File Path", "Codesign"]
+            data_table.add_hline()
+            data_table.add_row(headers, mapper=bold)
+            data_table.add_hline()
+            data_table.end_table_header()
+            data_table.add_hline()
+            data_table.add_row((MultiColumn(len(headers), align='r',
+                                            data=italic('Continued on Next Page')),))
+            data_table.end_table_footer()
+            data_table.add_hline()
+            data_table.add_row((MultiColumn(len(headers), align='r',
+                                            data=''),))
+            data_table.end_table_last_footer()
+
+            unsigned_daemons = []
+
+            for la in launch_daemons:
+
+                verification = la['codesign']['verification']
+                if 'valid on disk' in verification[0]:
+                    signature = 'signed'
+                else:
+                    signature = 'unsigned'
+
+                    unsigned_daemons.append(la)
+
+                data_table.add_row([la['filepath'], signature])
+
+
+            for agent in unsigned_daemons:
+                del agent['codesign']
+                del agent['filepath']
+
+
+
+        if len(unsigned_daemons) > 0:
+
+            for plist in unsigned_daemons:
+                plist_name = next(iter(plist))
+                with doc.create(Subsubsection(f'UNSIGNED: {plist_name}')):
+                    with doc.create(MiniPage(width=r"0.5\textwidth")):
+                        append_plist_to_doc(doc, plist)
+                    doc.append(NewLine())
 
 
 def launch_agents_subsection(doc: Document, data_dict: dict):
-        with doc.create(Subsection('LaunchAgents')):
-            doc.append("By far the most common way malware persists on macOS is via a LaunchAgent. "
-                       "Each user on a Mac can have a LaunchAgents folder in their own Library folder "
-                       "to specify code that should be run every time that user logs in. "
-                       "In addition, a LaunchAgents folder exists at the computer level which can run "
-                       "code for all users that login. There is also a LaunchAgents folder reserved "
-                       "for the System's own use. However, since this folder is now managed by macOS "
-                       "itself (since 10.11), malware is locked out of this location by default so long as "
-                       "System Integrity Protection has not been disabled or bypassed. \n")
-            doc.append('\n')
+    with doc.create(Subsection('LaunchAgents')):
+        doc.append("By far the most common way malware persists on macOS is via a LaunchAgent. "
+                   "Each user on a Mac can have a LaunchAgents folder in their own Library folder "
+                   "to specify code that should be run every time that user logs in. "
+                   "In addition, a LaunchAgents folder exists at the computer level which can run "
+                   "code for all users that login. There is also a LaunchAgents folder reserved "
+                   "for the System's own use. However, since this folder is now managed by macOS "
+                   "itself (since 10.11), malware is locked out of this location by default so long as "
+                   "System Integrity Protection has not been disabled or bypassed. \n")
+        doc.append('\n')
 
-            doc.append('The following LaunchAgents were located on the host machine and checked if they carry '
-                       'a valid and recognized code signature. Although some legit programs use unsigned LaunchAgents,'
-                       'all should be thoroughly checked and validated.')
-            doc.append('\n')
+        doc.append('The following LaunchAgents were located on the host machine and checked if they carry '
+                   'a valid and recognized code signature. Although some legit programs use unsigned LaunchAgents,'
+                   'all should be thoroughly checked and validated.')
+        doc.append('\n')
 
-            launch_agents = data_dict["launch_agents"]["data"]
+        launch_agents = data_dict["launch_agents"]["data"]
 
-            # Generate data table
-            with doc.create(LongTable("l|c", row_height=1.5)) as data_table:
-                headers = ["File Path", "Codesign"]
-                data_table.add_hline()
-                data_table.add_row(headers, mapper=bold)
-                data_table.add_hline()
-                data_table.end_table_header()
-                data_table.add_hline()
-                data_table.add_row((MultiColumn(len(headers), align='r',
-                                                data=italic('Continued on Next Page')),))
-                data_table.end_table_footer()
-                data_table.add_hline()
-                data_table.add_row((MultiColumn(len(headers), align='r',
-                                                data=''),))
-                data_table.end_table_last_footer()
+        # Generate data table
+        with doc.create(LongTable("l|c", row_height=1.5)) as data_table:
+            headers = ["File Path", "Codesign"]
+            data_table.add_hline()
+            data_table.add_row(headers, mapper=bold)
+            data_table.add_hline()
+            data_table.end_table_header()
+            data_table.add_hline()
+            data_table.add_row((MultiColumn(len(headers), align='r',
+                                            data=italic('Continued on Next Page')),))
+            data_table.end_table_footer()
+            data_table.add_hline()
+            data_table.add_row((MultiColumn(len(headers), align='r',
+                                            data=''),))
+            data_table.end_table_last_footer()
 
-                unsigned_agents = []
+            unsigned_agents = []
 
-                for la in launch_agents:
+            for la in launch_agents:
 
-                    verification = la['codesign']['verification']
-                    if 'valid on disk' in verification[0]:
-                        signature = 'signed'
-                    else:
-                        signature = 'unsigned'
+                verification = la['codesign']['verification']
+                if 'valid on disk' in verification[0]:
+                    signature = 'signed'
+                else:
+                    signature = 'unsigned'
 
-                        unsigned_agents.append(la)
+                    unsigned_agents.append(la)
 
-                    data_table.add_row([la['filepath'], signature])
-
-
-                for agent in unsigned_agents:
-                    del agent['codesign']
-                    del agent['filepath']
+                data_table.add_row([la['filepath'], signature])
 
 
+            for agent in unsigned_agents:
+                del agent['codesign']
+                del agent['filepath']
 
-            if len(unsigned_agents) > 0:
 
-                for plist in unsigned_agents:
-                    plist_name = next(iter(plist))
-                    with doc.create(Subsubsection(f'UNSIGNED: {plist_name}')):
-                        with doc.create(MiniPage(width=r"0.5\textwidth")):
-                            append_plist_to_doc(doc, plist)
-                        doc.append(NewLine())
+
+        if len(unsigned_agents) > 0:
+
+            for plist in unsigned_agents:
+                plist_name = next(iter(plist))
+                with doc.create(Subsubsection(f'UNSIGNED: {plist_name}')):
+                    with doc.create(MiniPage(width=r"0.5\textwidth")):
+                        append_plist_to_doc(doc, plist)
+                    doc.append(NewLine())

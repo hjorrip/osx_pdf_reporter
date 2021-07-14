@@ -27,7 +27,28 @@ def persistences(doc: Document, data_location: str):
     # Add the LaunchAgents SubSection to the Docuement
     launch_agents_subsection(doc, data_dict)
     launch_daemons_subsection(doc, data_dict)
+    cron_tabs_subsection(doc, data_dict)
 
+
+def cron_tabs_subsection(doc: Document, data_dict: dict):
+    with doc.create(Subsection('Cron Tabs')):
+        doc.append("Malicious cron tabs (cron jobs) are used by AdLoad and Mughthesec malware, among others, to "
+                   "achieve persistence. Although Apple has announced that new cron jobs will require "
+                   "user interaction to install in 10.15 Catalina, it's unlikely that this will do much "
+                   "to hinder attackers using it as a persistence method. User prompts are not an "
+                   "effective security measure when the user has already been tricked into installing "
+                   "the malicious software under the guise of something else. \n")
+        doc.append(NewLine())
+
+        doc.append("Cron tabs are NOT on used by the host system by default. "
+                   "The validity of each cron tab found on the system must be verified.\n")
+        doc.append(NewLine())
+
+        # TODO: Add a cron tab to the system and implement reporting for each cron tab found.
+        cron_tabs = data_dict["cron_tabs"]["data"]
+        no_cron_tabs = len(cron_tabs)
+        doc.append('Number Of CronTabs found: ')
+        doc.append(bold(str(no_cron_tabs)))
 
 
 def launch_daemons_subsection(doc: Document, data_dict: dict):

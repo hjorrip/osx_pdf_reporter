@@ -12,11 +12,8 @@ def persistences(doc: Document, data_location: str):
 
     doc.append(NewPage())
 
-
     with open(f'{data_location}/persistences/persistence.json') as json_file:
         data_dict = json.load(json_file)
-
-
 
     with doc.create(Section('Persisences')):
         doc.append("Whether it's a cryptominer looking for low-risk money-making opportunities, "
@@ -33,6 +30,24 @@ def persistences(doc: Document, data_location: str):
     kernel_extensions_subsection(doc, data_dict)
     login_items_subsection(doc, data_dict)
     periodics_subsection(doc, data_dict)
+    hooks_subsection(doc, data_dict)
+
+
+
+def hooks_subsection(doc: Document, data_dict: dict):
+    with doc.create(Subsection('Hooks')):
+        doc.append("LoginHooks and LogoutHooks have been around for years and are rarely used these days, "
+                   "but are still a perfectly viable way of running a persistence script on macOS Mojave. "
+                   "As the names suggest, these mechanisms run code when the user either logs in or logs out.\n")
+        doc.append(NewLine())
+
+        doc.append("Hooks are not used by the OS by default. Any mentions of LoginHook should be carefully inspected. \n")
+        doc.append(NewLine())
+        hooks_data_list = data_dict["hooks"]["data"]
+
+        doc.append("Number of LoginHooks detected: ")
+        # TODO: Add a login hook to the system and update the report to include more details on found loginhooks
+        doc.append(bold(str(len(hooks_data_list))))
 
 
 def periodics_subsection(doc: Document, data_dict: dict):

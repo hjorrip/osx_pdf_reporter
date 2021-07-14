@@ -28,6 +28,65 @@ def persistences(doc: Document, data_location: str):
     launch_agents_subsection(doc, data_dict)
     launch_daemons_subsection(doc, data_dict)
     cron_tabs_subsection(doc, data_dict)
+    kernel_extensions_subsection(doc, data_dict)
+
+
+def kernel_extensions_subsection(doc: Document, data_dict: dict):
+    with doc.create(Subsection('Kernel Extension')):
+        doc.append("Kernel extensions are widely used by legitimate software for persistent behavior, "
+                   "and we've seen them also used by so-called PUP software like MacKeeper An open-source "
+                   "keylogger, logkext, has also been around for some years, but in general kexts are not a "
+                   "favoured trick among malware authors as they are comparatively difficult to create, "
+                   "lack stealth, and can be easily removed Moreover, with the advent of macOS 10.15 Catalina, "
+                   "Apple have formerly deprecated kernel extensions and appear to be moving rapidly to "
+                   "phase them out entirely possibly as early as by 10.16 or 10.17\n")
+        doc.append(NewLine())
+
+        doc.append('The following Kernal Extensions were located on the host machine and checked if they carry '
+                   'a valid and recognized code signature. '
+                   'If any unsigned kernel extension are found, they must be carefully inspected.')
+        doc.append('\n')
+
+        kex_list = data_dict["kernel_extensions"]["data"]
+
+        # Generate data table
+        with doc.create(LongTable("l|c", row_height=1.5)) as data_table:
+            headers = ["File Path", "Codesign"]
+            data_table.add_hline()
+            data_table.add_row(headers, mapper=bold)
+            data_table.add_hline()
+            data_table.end_table_header()
+            data_table.add_hline()
+            data_table.add_row((MultiColumn(len(headers), align='r',
+                                            data=italic('Continued on Next Page')),))
+            data_table.end_table_footer()
+            data_table.add_hline()
+            data_table.add_row((MultiColumn(len(headers), align='r',
+                                            data=''),))
+            data_table.end_table_last_footer()
+
+            unsigned_kex = []
+
+
+            for kex in kex_list:
+                kex_details = kex[next(iter(kex))]
+                verification = kex_details['codesign']['verification']
+                if 'valid on disk' in verification[0]:
+                    signature = 'signed'
+                else:
+                    signature = 'unsigned'
+
+                    unsigned_kex.append(kex)
+
+                data_table.add_row([kex_details['path'], signature])
+
+        if len(unsigned_kex) == 0:
+            doc.append(bold('No unsigned kernel extensions detected'))
+
+        # The info.plist are quite too large to include in the report.
+        else:
+            doc.append("Number of unsigned kernel extension detected: ")
+            doc.append(bold(str(len(unsigned_kex))))
 
 
 def cron_tabs_subsection(doc: Document, data_dict: dict):
@@ -51,6 +110,8 @@ def cron_tabs_subsection(doc: Document, data_dict: dict):
         doc.append(bold(str(no_cron_tabs)))
 
 
+
+
 def launch_daemons_subsection(doc: Document, data_dict: dict):
     with doc.create(Subsection('LaunchDaemons')):
         doc.append("LaunchDaemons only exist at the computer and system level, and "
@@ -60,6 +121,11 @@ def launch_daemons_subsection(doc: Document, data_dict: dict):
                    "However, since most Mac users are also admin users and habitually provide authorisation "
                    "for software to install components whenever asked, the bar is not all that high and is "
                    "regularly cleared by infections we see in the wild.\n")
+        doc.append('\n')
+
+        doc.append('The following LaunchDaemons were located on the host machine and checked if they carry '
+                   'a valid and recognized code signature. Although some legit programs use unsigned LaunchDaemons,'
+                   'all should be thoroughly checked and validated.')
         doc.append('\n')
         
         launch_daemons = data_dict["launch_daemons"]["data"]
@@ -82,22 +148,22 @@ def launch_daemons_subsection(doc: Document, data_dict: dict):
 
             unsigned_daemons = []
 
-            for la in launch_daemons:
+            for item in launch_daemons:
 
-                verification = la['codesign']['verification']
+                verification = item['codesign']['verification']
                 if 'valid on disk' in verification[0]:
                     signature = 'signed'
                 else:
                     signature = 'unsigned'
 
-                    unsigned_daemons.append(la)
+                    unsigned_daemons.append(item)
 
-                data_table.add_row([la['filepath'], signature])
+                data_table.add_row([item['filepath'], signature])
 
 
-            for agent in unsigned_daemons:
-                del agent['codesign']
-                del agent['filepath']
+            for daemon in unsigned_daemons:
+                del daemon['codesign']
+                del daemon['filepath']
 
 
 

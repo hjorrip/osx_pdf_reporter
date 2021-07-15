@@ -1,9 +1,6 @@
 import json
-from datetime import datetime
-
 from pylatex import *
 from pylatex.utils import *
-
 from modules.helpers import append_plist_to_doc
 
 
@@ -48,7 +45,7 @@ def configuration_profiles_subsection(doc: Document, data_dict: dict):
         doc.append(NewLine())
         configuration_profiles_data_list = data_dict["configuration_profiles"]["data"]
 
-        doc.append("Number of configuration_profiles detected: ")
+        doc.append("Number of configuration profiles detected: ")
         # TODO: Add a configuration_profiles to the system and update the report to include more details when detected
         doc.append(bold(str(len(configuration_profiles_data_list))))
 

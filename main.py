@@ -1,5 +1,6 @@
 from pylatex import Document
 from modules import system_defences, user_accounts, persistences
+from modules.appendix import appendix
 
 if __name__ == '__main__':
     
@@ -17,6 +18,7 @@ if __name__ == '__main__':
     system_defences(doc, data_location)
     user_accounts(doc, data_location)
     persistences(doc, data_location)
+    appendix(doc, data_location)
 
     doc.generate_pdf('This is pdf', clean_tex=False)
 

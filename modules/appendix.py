@@ -29,55 +29,89 @@ def files_with_open_network_connection_subsection(doc: Document, data_dict: dict
         program_dict = {}
 
         for entry in files_with_open_network_connection_data:
-            if entry['COMMAND'] not in program_dict.keys():
-                program_dict[entry['COMMAND']] = []
-                program_dict[entry['COMMAND']].append(entry)
+            if entry['PROGRAM'] not in program_dict.keys():
+                program_dict[entry['PROGRAM']] = []
+                program_dict[entry['PROGRAM']].append(entry)
             else:
-                program_dict[entry['COMMAND']].append(entry)
+                program_dict[entry['PROGRAM']].append(entry)
 
         filtered_dict = {}
         for k,v in program_dict.items():
             pid_dict = {}
             for line in v:
-                if line['process']['PID'] not in pid_dict:
-                    pid_dict[line['process']['PID']] = []
-                    pid_dict[line['process']['PID']].append(line)
+                if line['PROCESS']['PID'] not in pid_dict:
+                    pid_dict[line['PROCESS']['PID']] = []
+                    pid_dict[line['PROCESS']['PID']].append(line)
                 else:
-                    pid_dict[line['process']['PID']].append(line)
+                    pid_dict[line['PROCESS']['PID']].append(line)
             filtered_dict[k] = pid_dict
 
         sorted_keys = sorted(filtered_dict.keys(), key=lambda x: x.lower())
 
         for program_name in sorted_keys:
 
-            with doc.create(Subsubsection(program_name)):
 
-                for key,pid_group in filtered_dict[program_name].items():
 
-                    doc.append(bold('USER: '))
-                    doc.append(filtered_dict[program_name][key][0]['USER'])
-                    doc.append(NewLine())
-                    doc.append(bold('PID: '))
-                    doc.append(key)
-                    doc.append(NewLine())
-                    doc.append(bold('CMD: '))
+            for key,pid_group in filtered_dict[program_name].items():
+                with doc.create(Subsubsection(program_name)):
 
-                    path = filtered_dict[program_name][key][0]['process']['CMD']
-                    if len(path) > 90:
-                        idx = str(path).find('/', 69)
-                        doc.append(path[:idx])
-                        doc.append(italic(' (continued next line)'))
-                        doc.append(NewLine())
-                        doc.append(HorizontalSpace('12mm'))
-                        doc.append(path[idx:])
-                    else:
-                        doc.append(path)
+                    #doc.append(bold('USER: '))
+                    #doc.append(filtered_dict[program_name][key][0]['USER'])
+                    #doc.append(NewLine())
+                    #doc.append(bold('PID: '))
+                    #doc.append(key)
+                    #doc.append(NewLine())
+                    #doc.append(bold('CMD: '))
+#
+                    path = filtered_dict[program_name][key][0]['PROCESS']['CMD']
+                   #if len(path) > 90:
+                   #    idx = str(path).find('/', 69)
+                   #    doc.append(path[:idx])
+                   #    doc.append(italic(' (continued next line)'))
+                   #    doc.append(NewLine())
+                   #    doc.append(HorizontalSpace('12mm'))
+                   #    doc.append(path[idx:])
+                   #else:
+                   #    doc.append(path)
 
-                    doc.append(NewLine())
+
+                   #doc.append(NewLine())
+
+                    # Small hack to create a new line after subsection
+                    doc.append(HorizontalSpace('1mm'))
+                    doc.append('\n')
+
+                    doc.append(HorizontalSpace('5mm'))
+                    doc.append(bold('Process Information'))
 
                     # Generate data table
+                    with doc.create(LongTabu("l|X[l]",  row_height=1.5)) as data_table:
+                        headers = ["Key", "Value"]
+                        data_table.add_hline()
+                        data_table.add_row(headers, mapper=bold)
+                        data_table.add_hline()
+                        data_table.end_table_header()
+                        data_table.add_hline()
+                        data_table.add_row((MultiColumn(len(headers), align='r',
+                                                        data=italic('Continued on Next Page')),))
+                        data_table.end_table_footer()
+                        data_table.add_hline()
+                        data_table.add_row((MultiColumn(len(headers), align='r',
+                                                        data=''),))
+                        data_table.end_table_last_footer()
+
+                        data_table.add_row(["User", filtered_dict[program_name][key][0]['USER']])
+                        data_table.add_row(["PID", key])
+                        data_table.add_row(['CMD', path])
+                        #data_table.add_row([MultiColumn(len(headers), align='l', data='Open Connections')])
+
+                        #for line in filtered_dict[program_name][key]:
+                        #    data_table.add_row([line['TYPE'], line['NODE']])
+                        #    #line['NAME']
+                    doc.append(bold('Open Connections'))
+
                     with doc.create(LongTabu("l|l|X[l]",  row_height=1.5)) as data_table:
-                        headers = ["Type", "Node", "Name"]
+                        headers = ["Type", "PROTOCOL", "Name"]
                         data_table.add_hline()
                         data_table.add_row(headers, mapper=bold)
                         data_table.add_hline()
@@ -92,7 +126,7 @@ def files_with_open_network_connection_subsection(doc: Document, data_dict: dict
                         data_table.end_table_last_footer()
 
                         for line in filtered_dict[program_name][key]:
-                            data_table.add_row([line['TYPE'], line['NODE'], line['NAME']])
+                            data_table.add_row([line['TYPE'], line['PROTOCOL'], line['CONNECTION']])
 
 
 

@@ -20,6 +20,18 @@ def appendix(doc: Document, data_location: str):
         arp_table_subsection(doc, data_dict)
         open_ports_and_connection_subsection(doc, data_dict)
         files_with_open_network_connection_subsection(doc, data_dict)
+        auto_proxy_settings_subsection(doc, data_dict)
+
+
+def auto_proxy_settings_subsection(doc: Document, data_dict: dict):
+    with doc.create(Subsection('Auto Proxy Settings')):
+        doc.append("Spyware like OnionSpy has been seen to configure these settings to redirect user traffic to a server of the attacker's choosing. Bash command: 'scutil --proxy'\n")
+        doc.append('\n')
+
+        # TODO: At this location.
+        for line in data_dict["auto_proxy_settings"]["data"][1]['lines']:
+            doc.append(line)
+            doc.append("\n")
 
 
 def files_with_open_network_connection_subsection(doc: Document, data_dict: dict):
@@ -55,34 +67,14 @@ def files_with_open_network_connection_subsection(doc: Document, data_dict: dict
             for key,pid_group in filtered_dict[program_name].items():
                 with doc.create(Subsubsection(program_name)):
 
-                    #doc.append(bold('USER: '))
-                    #doc.append(filtered_dict[program_name][key][0]['USER'])
-                    #doc.append(NewLine())
-                    #doc.append(bold('PID: '))
-                    #doc.append(key)
-                    #doc.append(NewLine())
-                    #doc.append(bold('CMD: '))
-#
                     path = filtered_dict[program_name][key][0]['PROCESS']['CMD']
-                   #if len(path) > 90:
-                   #    idx = str(path).find('/', 69)
-                   #    doc.append(path[:idx])
-                   #    doc.append(italic(' (continued next line)'))
-                   #    doc.append(NewLine())
-                   #    doc.append(HorizontalSpace('12mm'))
-                   #    doc.append(path[idx:])
-                   #else:
-                   #    doc.append(path)
-
-
-                   #doc.append(NewLine())
 
                     # Small hack to create a new line after subsection
-                    doc.append(HorizontalSpace('1mm'))
-                    doc.append('\n')
+                    #doc.append(HorizontalSpace('1mm'))
+                    #doc.append('\n')
 
-                    doc.append(HorizontalSpace('5mm'))
-                    doc.append(bold('Process Information'))
+                    #doc.append(HorizontalSpace('5mm'))
+                    #doc.append(bold('Process Information'))
 
                     # Generate data table
                     with doc.create(LongTabu("l|X[l]",  row_height=1.5)) as data_table:
@@ -103,12 +95,9 @@ def files_with_open_network_connection_subsection(doc: Document, data_dict: dict
                         data_table.add_row(["User", filtered_dict[program_name][key][0]['USER']])
                         data_table.add_row(["PID", key])
                         data_table.add_row(['CMD', path])
-                        #data_table.add_row([MultiColumn(len(headers), align='l', data='Open Connections')])
 
-                        #for line in filtered_dict[program_name][key]:
-                        #    data_table.add_row([line['TYPE'], line['NODE']])
-                        #    #line['NAME']
-                    doc.append(bold('Open Connections'))
+
+   #                 doc.append(bold('Open Connections'))
 
                     with doc.create(LongTabu("l|l|X[l]",  row_height=1.5)) as data_table:
                         headers = ["Type", "PROTOCOL", "Name"]

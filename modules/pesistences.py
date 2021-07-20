@@ -1,8 +1,7 @@
 import json
 from pylatex import *
 from pylatex.utils import *
-from modules.helpers import append_plist_to_doc
-
+from modules.helpers import append_plist_to_doc, split_long_lines
 
 
 def persistences(doc: Document, data_location: str):
@@ -281,6 +280,7 @@ def kernel_extensions_subsection(doc: Document, data_dict: dict):
 
 def cron_tabs_subsection(doc: Document, data_dict: dict):
     with doc.create(Subsection('Cron Tabs')):
+
         doc.append("Malicious cron tabs (cron jobs) are used by AdLoad and Mughthesec malware, among others, to "
                    "achieve persistence. Although Apple has announced that new cron jobs will require "
                    "user interaction to install in 10.15 Catalina, it's unlikely that this will do much "
@@ -317,11 +317,12 @@ def launch_daemons_subsection(doc: Document, data_dict: dict):
                    'a valid and recognized code signature. Although some legit programs use unsigned LaunchDaemons,'
                    'all should be thoroughly checked and validated.')
         doc.append('\n')
-        
+
+
         launch_daemons = data_dict["launch_daemons"]["data"]
 
         # Generate data table
-        with doc.create(LongTable("l|c", row_height=1.5)) as data_table:
+        with doc.create(LongTable("| p{0.8\linewidth} | p{0.1\linewidth} |", row_height=1.5)) as data_table:
             headers = ["File Path", "Codesign"]
             data_table.add_hline()
             data_table.add_row(headers, mapper=bold)
@@ -336,35 +337,63 @@ def launch_daemons_subsection(doc: Document, data_dict: dict):
                                             data=''),))
             data_table.end_table_last_footer()
 
-            unsigned_daemons = []
+            unsigned_agents = []
 
-            for item in launch_daemons:
+            for la in launch_daemons:
 
-                verification = item['codesign']['verification']
+                verification = la['plist_executable']['codesign']['verification']
                 if 'valid on disk' in verification[0]:
-                    signature = 'signed'
+                    signature = 'Signed'
                 else:
-                    signature = 'unsigned'
+                    signature = 'Unsigned'
 
-                    unsigned_daemons.append(item)
+                    unsigned_agents.append(la)
 
-                data_table.add_row([item['filepath'], signature])
+                data_table.add_row([la['filepath'], ""])
+
+                plist_exe_path = split_long_lines(la['plist_executable']['metadata']['file_path'], '/', 90)
+
+                data_table.add_row([plist_exe_path, signature])
+                data_table.add_hline()
+
+        if len(unsigned_agents) > 0:
+
+            for plist in unsigned_agents:
+                for key, value in plist.items():
+                    if '.plist' in key:
+                        plist_name = key
+                        with doc.create(Subsubsection(f'UNSIGNED: {plist_name}')):
+                            with doc.create(MiniPage(width=r"0.5\textwidth")):
+                                append_plist_to_doc(doc, plist[plist_name])
+
+                            doc.append(NewLine())
+
+                            doc.append(bold('File Type: '))
+                            # The filetype node contains the full path of the file - we dont need to print that
+                            # so we find the first semidot and only print the information found after that.
+                            file_type = str(plist['plist_executable']['metadata']['filetype']).rstrip()
+                            split_index = file_type.find(':') + 1
+                            doc.append(file_type[split_index:])
+
+                            doc.append(NewLine())
+
+                            doc.append(bold('MD5: '))
+                            doc.append(plist['plist_executable']['metadata']['md5'])
+
+                            doc.append(NewLine())
+
+                            doc.append(bold('SHA1: '))
+                            doc.append(plist['plist_executable']['metadata']['sha1'])
+
+                            doc.append(NewLine())
+
+                            doc.append(bold('SHA256: '))
+                            doc.append(plist['plist_executable']['metadata']['sha256'])
+
+                            doc.append(NewLine())
+                            doc.append(NewLine())
 
 
-            for daemon in unsigned_daemons:
-                del daemon['codesign']
-                del daemon['filepath']
-
-
-
-        if len(unsigned_daemons) > 0:
-
-            for plist in unsigned_daemons:
-                plist_name = next(iter(plist))
-                with doc.create(Subsubsection(f'UNSIGNED: {plist_name}')):
-                    with doc.create(MiniPage(width=r"0.5\textwidth")):
-                        append_plist_to_doc(doc, plist)
-                    doc.append(NewLine())
 
 
 def launch_agents_subsection(doc: Document, data_dict: dict):
@@ -387,7 +416,7 @@ def launch_agents_subsection(doc: Document, data_dict: dict):
         launch_agents = data_dict["launch_agents"]["data"]
 
         # Generate data table
-        with doc.create(LongTable("l|c", row_height=1.5)) as data_table:
+        with doc.create(LongTable("| p{0.8\linewidth} | p{0.1\linewidth} |", row_height=1.5)) as data_table:
             headers = ["File Path", "Codesign"]
             data_table.add_hline()
             data_table.add_row(headers, mapper=bold)
@@ -406,28 +435,59 @@ def launch_agents_subsection(doc: Document, data_dict: dict):
 
             for la in launch_agents:
 
-                verification = la['codesign']['verification']
+                verification = la['plist_executable']['codesign']['verification']
                 if 'valid on disk' in verification[0]:
-                    signature = 'signed'
+                    signature = 'Signed'
                 else:
-                    signature = 'unsigned'
+                    signature = 'Unsigned'
 
                     unsigned_agents.append(la)
 
-                data_table.add_row([la['filepath'], signature])
+                data_table.add_row([la['filepath'], ""])
 
+                plist_exe_path = split_long_lines(la['plist_executable']['metadata']['file_path'], '/', 90)
 
-            for agent in unsigned_agents:
-                del agent['codesign']
-                del agent['filepath']
-
+                data_table.add_row([plist_exe_path, signature])
+                data_table.add_hline()
 
 
         if len(unsigned_agents) > 0:
 
             for plist in unsigned_agents:
-                plist_name = next(iter(plist))
-                with doc.create(Subsubsection(f'UNSIGNED: {plist_name}')):
-                    with doc.create(MiniPage(width=r"0.5\textwidth")):
-                        append_plist_to_doc(doc, plist)
-                    doc.append(NewLine())
+                for key, value in plist.items():
+                    if '.plist' in key:
+                        plist_name = key
+                        with doc.create(Subsubsection(f'UNSIGNED: {plist_name}')):
+                            with doc.create(MiniPage(width=r"0.5\textwidth")):
+                                append_plist_to_doc(doc, plist[plist_name])
+
+                            doc.append(NewLine())
+                            doc.append(bold('File Type: '))
+
+                            # The filetype node contains the full path of the file - we dont need to print that
+                            # so we find the first semidot and only print the information found after that.
+                            file_type = str(plist['plist_executable']['metadata']['filetype'])
+                            split_index = file_type.find(':') + 1
+
+                            doc.append(file_type[split_index:])
+                            doc.append(bold('MD5: '))
+                            doc.append(plist['plist_executable']['metadata']['md5'])
+                            doc.append(NewLine())
+                            doc.append(bold('SHA1: '))
+                            doc.append(plist['plist_executable']['metadata']['sha1'])
+                            doc.append(NewLine())
+                            doc.append(bold('SHA256: '))
+                            doc.append(plist['plist_executable']['metadata']['sha256'])
+                            doc.append(NewLine())
+                            doc.append(NewLine())
+
+
+
+
+
+
+
+
+
+
+

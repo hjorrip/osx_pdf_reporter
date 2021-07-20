@@ -1,8 +1,13 @@
-from pylatex import Document
+from pylatex import Document, NoEscape, NewPage
 from modules import system_defences, user_accounts, persistences
 from modules.appendix import appendix
 
+
+
+
+
 if __name__ == '__main__':
+
     
     geometry_options = {
         "head": "40pt",
@@ -15,14 +20,13 @@ if __name__ == '__main__':
 
     data_location = '../osx_investigator/output'
 
+
     system_defences(doc, data_location)
     user_accounts(doc, data_location)
     persistences(doc, data_location)
     appendix(doc, data_location)
 
     doc.generate_pdf('This is pdf', clean_tex=False)
-
-
 
 
 

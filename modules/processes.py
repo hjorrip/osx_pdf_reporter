@@ -18,6 +18,10 @@ def processes(doc: Document, data_location: str):
 
         running_applications_subsection(doc, data_dict)
 
+        #TODO: Parsing launchctl_list - but a lot of it are com.apple.... so we can check the code signature
+        # for all of those, and exlude them if they check out (and those files that they say are from apple
+        # are indeed from apple)
+
 
 def running_applications_subsection(doc: Document, data_dict: dict):
     with doc.create(Subsection('Running Applications')):

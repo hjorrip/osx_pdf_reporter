@@ -20,10 +20,12 @@ def split_long_lines(line: str, char_split: str, max_length: int):
         if start_search_idx > 0:
 
             insert_at = line.find(char_split, max_length - 10) + 1
+            if insert_at != 0:
+                splitted_string = line[:insert_at] + '\n' + line[insert_at:]
 
-            splitted_string = line[:insert_at] + '\n' + line[insert_at:]
-
-            return splitted_string
+                return splitted_string
+            else:
+                return line
 
         else:
             return line

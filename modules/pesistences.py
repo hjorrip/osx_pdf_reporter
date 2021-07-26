@@ -351,7 +351,7 @@ def launch_daemons_subsection(doc: Document, data_dict: dict):
 
                 data_table.add_row([la['filepath'], ""])
 
-                plist_exe_path = split_long_lines(la['plist_executable']['metadata']['file_path'], '/', 90)
+                plist_exe_path = split_long_lines(la['plist_executable']['metadata']['file_path'], '/', 80)
 
                 data_table.add_row([plist_exe_path, signature])
                 data_table.add_hline()

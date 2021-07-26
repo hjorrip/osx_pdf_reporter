@@ -12,22 +12,37 @@ def append_plist_to_doc(doc: Document, plist: dict):
         doc.append(verbatim(line))
         doc.append("\n")
 
-def split_long_lines(line: str, char_split: str, max_length: int):
+def split_long_lines(line: str, char_split: str, allowed_line_length: int):
 
-    if len(line) > max_length:
+    split_strings = [line[index: index + allowed_line_length] for index in range(0, len(line), allowed_line_length)]
 
-        start_search_idx = max_length - 10
-        if start_search_idx > 0:
+    return '\n'.join(split_strings)
 
-            insert_at = line.find(char_split, max_length - 10) + 1
-            if insert_at != 0:
-                splitted_string = line[:insert_at] + '\n' + line[insert_at:]
+   #while line_length > allowed_line_length:
 
-                return splitted_string
-            else:
-                return line
 
-        else:
-            return line
-    else:
-        return line
+
+
+
+
+
+   #if line_length > allowed_line_length:
+
+   #    start_search_idx = allowed_line_length - 10
+
+   #    while line_length > allowed_line_length:
+
+   #        if start_search_idx > 0:
+
+   #            insert_at = line.find(char_split, allowed_line_length - 10) + 1
+   #            if insert_at != 0:
+   #                splitted_string = line[:insert_at] + '\n' + line[insert_at:]
+
+   #                return splitted_string
+   #            else:
+   #                return line
+
+   #        else:
+   #            return line
+   #else:
+   #    return line

@@ -1,7 +1,9 @@
 import json
+import re
+
 from pylatex import *
 from pylatex.utils import *
-from modules.helpers import append_plist_to_doc, split_long_lines
+from modules.helpers import append_plist_to_doc, split_long_lines, line_wrapper
 
 
 def processes(doc: Document, data_location: str):
@@ -109,9 +111,7 @@ def running_processes_subsection(doc: Document, data_dict: dict):
 
                     arguments = command.replace(program_path, '')
 
-                    arguments_multiline = split_long_lines(arguments, "/", 80)
-
-                    data_table.add_row(["Arguments", arguments_multiline])
+                    data_table.add_row(["Arguments", line_wrapper(arguments)])
 
                     data_table.add_hline()
 
@@ -123,48 +123,6 @@ def running_processes_subsection(doc: Document, data_dict: dict):
                     data_table.add_row(["Program", process_dict[entry['PPID']]['PROGRAM']])
                     data_table.add_hline()
                     data_table.add_row(["Arguments", process_dict[entry['PPID']]['ARG']])
-
-
-                    #plist_exe_path = split_long_lines(la['plist_executable']['metadata']['file_path'], '/', 90)
-#
-                    #data_table.add_row([plist_exe_path, signature])
-                    #data_table.add_hline()
-
-
-
-                #doc.append(bold('Spawned by: '))
-                #doc.append(entry['USER'])
-                #doc.append(NewLine())
-#
-                #doc.append(bold('PID: '))
-                #doc.append(entry['PID'])
-                #doc.append(NewLine())
-#
-                #doc.append(bold('Command : '))
-                #doc.append(entry['COMMAND'])
-                #doc.append(NewLine())
-#
-                #doc.append(bold('%MEM : '))
-                #doc.append(entry['%MEM'])
-                #doc.append(NewLine())
-#
-                #doc.append(bold('%CPU : '))
-                #doc.append(entry['%CPU'])
-                #doc.append(NewLine())
-#
-                #doc.append("--- Parent Process --- \n")
-#
-                #doc.append(bold('PPID : '))
-                #doc.append(entry['PPID'])
-                #doc.append(NewLine())
-#
-                #doc.append(bold('Command : '))
-                #doc.append(process_dict[entry['PPID']])
-                #doc.append(NewLine())
-#
-                #doc.append(NewLine())
-
-
 
 
 
@@ -398,8 +356,8 @@ def running_applications_subsection(doc: Document, data_dict: dict):
         application_list = data_dict["running_applications"]["data"]
 
         # Generate data table
-        with doc.create(LongTable("| p{0.8\linewidth} | p{0.1\linewidth} |", row_height=1.5)) as data_table:
-            headers = ["File Path", "Codesign"]
+        with doc.create(LongTable("| p{0.65\linewidth} | p{0.15\linewidth} | p{0.1\linewidth} |", row_height=1.5)) as data_table:
+            headers = ["File Path", "Type", "Codesign"]
             data_table.add_hline()
             data_table.add_row(headers, mapper=bold)
             data_table.add_hline()
@@ -420,10 +378,27 @@ def running_applications_subsection(doc: Document, data_dict: dict):
                 verification = application['codesign']['verification']
                 if 'valid on disk' in verification[0]:
                     signature = 'Signed'
-                    data_table.add_row([application['name'], signature])
+
+                    exe_path = ""
+                    type = "N/A"
+
+                    for line in application['details']:
+                        if 'executable path' in line:
+                            exe_path = re.findall('(?<=executable path=").+(?=")', line)[0]
+                        elif 'type' in line:
+                            type = re.findall(r'(?<=type=").+?(?=")', line)[0]
+
+
+
+
+                    app_name = exe_path if not "" else application['name']
+
+                    type = bold(type) if 'BackgroundOnly' in type else type
+
+                    data_table.add_row([line_wrapper(app_name), type, signature])
                 else:
                     signature = 'Unsigned'
-                    data_table.add_row([bold(application['name']), bold(signature)])
+                    data_table.add_row([bold(application['name']), type, bold(signature)])
                     unsigned_apps.append(application)
                 data_table.add_hline()
 

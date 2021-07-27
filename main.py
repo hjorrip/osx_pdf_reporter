@@ -1,4 +1,4 @@
-from pylatex import Document, NoEscape, NewPage
+from pylatex import Document, NoEscape, NewPage, Package, Command
 from modules import system_defences, user_accounts, persistences
 from modules.appendix import appendix
 from modules.network import network
@@ -15,6 +15,7 @@ if __name__ == '__main__':
     }
 
     doc = Document(geometry_options=geometry_options)
+    doc.packages.append(Package('seqsplit'))
 
     data_location = '../osx_investigator/output'
 

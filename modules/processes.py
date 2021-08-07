@@ -13,6 +13,10 @@ def processes(doc: Document, data_location: str):
     with open(f'{data_location}/processes/processes.json') as json_file:
         data_dict = json.load(json_file)
 
+    #TODO: DElete / move
+    #with open(f'{data_location}/files/files.json') as json_file:
+    #    files_dict = json.load(json_file)
+
     with doc.create(Section('Processes')):
         doc.append("Collection of process data that may reveal important information. No conclusion can be "
                    "automatically drawn from this information, so it is up to the analyst to find anomalies "
@@ -22,10 +26,46 @@ def processes(doc: Document, data_location: str):
         launchctl_list_subsection(doc, data_dict)
         running_processes_subsection(doc, data_dict)
 
+        #TODO: Delete/move
+        #open_files(doc, files_dict)
+
+
+
+
+# TODO: Delete / move
+def open_files(doc:Document, data_dict: dict):
+
+    open_files_data = data_dict["list_of_open_files"]["data"]
+
+    system_files = []
+    other_files = []
+    other_regular_files = []
+
+    for file in open_files_data:
+
+        file_path = file['NAME']
+
+        if str(file_path).startswith('/System'):
+            system_files.append(file)
+        else:
+
+            if file['TYPE'] == 'REG':
+                other_regular_files.append(file)
+            else:
+                other_files.append(file)
+
+    print(f'System Files: {len(system_files)}')
+    print(f'Other Files: {len(other_files)}')
+    print(f'Other Regular Files: {len(other_regular_files)}')
 
 
 
 def running_processes_subsection(doc: Document, data_dict: dict):
+
+    # TODO: Implement flags to flip this bit when requested
+    verbose = False
+
+
     running_processes_data = data_dict["running_processes"]["data"]
 
     # ******************************* Data sorting *******************************
@@ -56,6 +96,9 @@ def running_processes_subsection(doc: Document, data_dict: dict):
         if ppid > 1:
             user_spawned_processes.append(process)
 
+    unsigned_processes = []
+
+    # ********* VERBOSE Reporting # *********
 
     with doc.create(Subsection('Running Processes')):
         doc.append("There were total ")
@@ -70,59 +113,148 @@ def running_processes_subsection(doc: Document, data_dict: dict):
         doc.append(NewLine())
         doc.append(NewLine())
 
-        for entry in user_spawned_processes:
+        if verbose:
 
-            path = str(entry['PROGRAM']).split("/")
-            program_name = path[-1]
+            for entry in user_spawned_processes:
 
-            with doc.create(Subsubsection(program_name)):
+                path = str(entry['PROGRAM']).split("/")
+                program_name = path[-1]
 
-                # TODO Working on table formatting - sometimes the letters go off page
-                # Generate data table
-                with doc.create(LongTable("| p{0.1\linewidth} | p{0.8\linewidth} |", row_height=1.5)) as data_table:
-                    nr_of_columns = 2
+                with doc.create(Subsubsection(program_name)):
+
+                    # TODO Working on table formatting - sometimes the letters go off page
+                    # Generate data table
+                    with doc.create(LongTable("| p{0.1\linewidth} | p{0.8\linewidth} |", row_height=1.5)) as data_table:
+                        nr_of_columns = 2
+
+                        data_table.add_hline()
+                        data_table.add_row((MultiColumn(nr_of_columns, align='r',
+                                                        data=italic('Continued on Next Page')),))
+                        data_table.end_table_footer()
+                        data_table.add_hline()
+                        data_table.add_row((MultiColumn(nr_of_columns, align='r',
+                                                        data=''),))
+                        data_table.end_table_last_footer()
+
+                        data_table.add_hline()
+                        data_table.add_row(["Spawned by", entry['USER']])
+                        data_table.add_hline()
+
+                        data_table.add_row(["PID", entry['PID']])
+                        data_table.add_hline()
+
+
+                        program_path = entry['PROGRAM']
+                        path_multiline = split_long_lines(program_path, '/', 80)
+
+                        data_table.add_row(["Program", path_multiline])
+                        data_table.add_hline()
+
+
+
+                        command = entry['COMMAND']
+
+                        arguments = command.replace(program_path, '')
+
+                        data_table.add_row(["Arguments", line_wrapper(arguments)])
+
+                        data_table.add_hline()
+
+                        data_table.add_hline()
+
+
+                        data_table.add_row(["PPID", entry['PPID']])
+                        data_table.add_hline()
+                        data_table.add_row(["Program", process_dict[entry['PPID']]['PROGRAM']])
+                        data_table.add_hline()
+                        data_table.add_row(["Arguments", process_dict[entry['PPID']]['ARG']])
+        else:
+            # Generate data table
+            with doc.create(LongTable("| p{0.05\linewidth}| p{0.05\linewidth} | p{0.7\linewidth} | p{0.1\linewidth} | ",
+                                      row_height=1.5)) as data_table:
+                headers = ["PPID", "PID", "Program", "Codesign"]
+                data_table.add_hline()
+                data_table.add_row(headers, mapper=bold)
+                data_table.add_hline()
+                data_table.end_table_header()
+                data_table.add_hline()
+                data_table.add_row((MultiColumn(len(headers), align='r',
+                                                data=italic('Continued on Next Page')),))
+                data_table.end_table_footer()
+                data_table.add_hline()
+                data_table.add_row((MultiColumn(len(headers), align='r',
+                                                data=''),))
+                data_table.end_table_last_footer()
+
+
+                for process in user_spawned_processes:
+
+                    pid = process['PID']
+                    ppid = process['PPID']
+                    program = process['PROGRAM']
+
+                    verification = process['codesign']['verification']
+                    if 'valid on disk' in verification[0]:
+                        signature = 'Signed'
+
+                    else:
+                        signature = bold('Unsigned')
+                        unsigned_processes.append(process)
+
+                    data_table.add_row([ppid, pid, line_wrapper(program), signature])
 
                     data_table.add_hline()
-                    data_table.add_row((MultiColumn(nr_of_columns, align='r',
-                                                    data=italic('Continued on Next Page')),))
-                    data_table.end_table_footer()
-                    data_table.add_hline()
-                    data_table.add_row((MultiColumn(nr_of_columns, align='r',
-                                                    data=''),))
-                    data_table.end_table_last_footer()
-
-                    data_table.add_hline()
-                    data_table.add_row(["Spawned by", entry['USER']])
-                    data_table.add_hline()
-
-                    data_table.add_row(["PID", entry['PID']])
-                    data_table.add_hline()
-
-
-                    program_path = entry['PROGRAM']
-                    path_multiline = split_long_lines(program_path, '/', 80)
-
-                    data_table.add_row(["Program", path_multiline])
-                    data_table.add_hline()
 
 
 
-                    command = entry['COMMAND']
+            for process in unsigned_processes:
+                path = str(process['PROGRAM']).split("/")
+                program_name = path[-1]
+                with doc.create(Subsubsection('Unsigned: ' + program_name)):
+                    # TODO Working on table formatting - sometimes the letters go off page
+                    # Generate data table
+                    with doc.create(
+                            LongTable("| p{0.1\linewidth} | p{0.8\linewidth} |", row_height=1.5)) as data_table:
+                        nr_of_columns = 2
 
-                    arguments = command.replace(program_path, '')
+                        data_table.add_hline()
+                        data_table.add_row((MultiColumn(nr_of_columns, align='r',
+                                                        data=italic('Continued on Next Page')),))
+                        data_table.end_table_footer()
+                        data_table.add_hline()
+                        data_table.add_row((MultiColumn(nr_of_columns, align='r',
+                                                        data=''),))
+                        data_table.end_table_last_footer()
 
-                    data_table.add_row(["Arguments", line_wrapper(arguments)])
+                        data_table.add_hline()
+                        data_table.add_row(["Spawned by", process['USER']])
+                        data_table.add_hline()
 
-                    data_table.add_hline()
+                        data_table.add_row(["PID", process['PID']])
+                        data_table.add_hline()
 
-                    data_table.add_hline()
+                        program_path = process['PROGRAM']
+                        path_multiline = split_long_lines(program_path, '/', 80)
 
+                        data_table.add_row(["Program", path_multiline])
+                        data_table.add_hline()
 
-                    data_table.add_row(["PPID", entry['PPID']])
-                    data_table.add_hline()
-                    data_table.add_row(["Program", process_dict[entry['PPID']]['PROGRAM']])
-                    data_table.add_hline()
-                    data_table.add_row(["Arguments", process_dict[entry['PPID']]['ARG']])
+                        command = process['COMMAND']
+
+                        arguments = command.replace(program_path, '')
+
+                        data_table.add_row(["Arguments", line_wrapper(arguments)])
+
+                        data_table.add_hline()
+
+                        data_table.add_hline()
+
+                        data_table.add_row(["PPID", process['PPID']])
+                        data_table.add_hline()
+                        data_table.add_row(["Program", process_dict[process['PPID']]['PROGRAM']])
+                        data_table.add_hline()
+                        data_table.add_row(["Arguments", process_dict[process['PPID']]['ARG']])
+
 
 
 
@@ -375,25 +507,22 @@ def running_applications_subsection(doc: Document, data_dict: dict):
 
             for application in application_list:
 
+                exe_path = ""
+                type = "N/A"
+
+                for line in application['details']:
+                    if 'executable path' in line:
+                        exe_path = re.findall('(?<=executable path=").+(?=")', line)[0]
+                    elif 'type' in line:
+                        type = re.findall(r'(?<=type=").+?(?=")', line)[0]
+                        type = bold(type) if 'BackgroundOnly' in type else type
+
                 verification = application['codesign']['verification']
+
                 if 'valid on disk' in verification[0]:
                     signature = 'Signed'
 
-                    exe_path = ""
-                    type = "N/A"
-
-                    for line in application['details']:
-                        if 'executable path' in line:
-                            exe_path = re.findall('(?<=executable path=").+(?=")', line)[0]
-                        elif 'type' in line:
-                            type = re.findall(r'(?<=type=").+?(?=")', line)[0]
-
-
-
-
                     app_name = exe_path if not "" else application['name']
-
-                    type = bold(type) if 'BackgroundOnly' in type else type
 
                     data_table.add_row([line_wrapper(app_name), type, signature])
                 else:

@@ -164,9 +164,9 @@ def running_processes_subsection(doc: Document, data_dict: dict):
 
                         data_table.add_row(["PPID", entry['PPID']])
                         data_table.add_hline()
-                        data_table.add_row(["Program", process_dict[entry['PPID']]['PROGRAM']])
+                        data_table.add_row(["Program", line_wrapper(process_dict[entry['PPID']]['PROGRAM'])])
                         data_table.add_hline()
-                        data_table.add_row(["Arguments", process_dict[entry['PPID']]['ARG']])
+                        data_table.add_row(["Arguments", line_wrapper(process_dict[entry['PPID']]['ARG'])])
         else:
             # Generate data table
             with doc.create(LongTable("| p{0.05\linewidth}| p{0.05\linewidth} | p{0.7\linewidth} | p{0.1\linewidth} | ",

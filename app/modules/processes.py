@@ -145,9 +145,8 @@ def running_processes_subsection(doc: Document, data_dict: dict):
 
 
                         program_path = entry['PROGRAM']
-                        path_multiline = split_long_lines(program_path, '/', 80)
 
-                        data_table.add_row(["Program", path_multiline])
+                        data_table.add_row(["Program", line_wrapper(program_path)])
                         data_table.add_hline()
 
 

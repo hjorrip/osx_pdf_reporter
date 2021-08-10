@@ -321,77 +321,80 @@ def launch_daemons_subsection(doc: Document, data_dict: dict):
 
         launch_daemons = data_dict["launch_daemons"]["data"]
 
-        # Generate data table
-        with doc.create(LongTable("| p{0.8\linewidth} | p{0.1\linewidth} |", row_height=1.5)) as data_table:
-            headers = ["File Path", "Codesign"]
-            data_table.add_hline()
-            data_table.add_row(headers, mapper=bold)
-            data_table.add_hline()
-            data_table.end_table_header()
-            data_table.add_hline()
-            data_table.add_row((MultiColumn(len(headers), align='r',
-                                            data=italic('Continued on Next Page')),))
-            data_table.end_table_footer()
-            data_table.add_hline()
-            data_table.add_row((MultiColumn(len(headers), align='r',
-                                            data=''),))
-            data_table.end_table_last_footer()
-
-            unsigned_agents = []
-
-            for la in launch_daemons:
-
-                verification = la['plist_executable']['codesign']['verification']
-                if 'valid on disk' in verification[0]:
-                    signature = 'Signed'
-                else:
-                    signature = 'Unsigned'
-
-                    unsigned_agents.append(la)
-
-                data_table.add_row([la['filepath'], ""])
-
-                plist_exe_path = split_long_lines(la['plist_executable']['metadata']['file_path'], '/', 80)
-
-                data_table.add_row([plist_exe_path, signature])
+        doc.append(bold(f"There were {len(launch_daemons)} Launch Daemons found on the host system."))
+        doc.append(NewLine())
+        # Only generate the table if there is any data to display.
+        if launch_daemons:
+            with doc.create(LongTable("| p{0.8\linewidth} | p{0.1\linewidth} |", row_height=1.5)) as data_table:
+                headers = ["File Path", "Codesign"]
                 data_table.add_hline()
+                data_table.add_row(headers, mapper=bold)
+                data_table.add_hline()
+                data_table.end_table_header()
+                data_table.add_hline()
+                data_table.add_row((MultiColumn(len(headers), align='r',
+                                                data=italic('Continued on Next Page')),))
+                data_table.end_table_footer()
+                data_table.add_hline()
+                data_table.add_row((MultiColumn(len(headers), align='r',
+                                                data=''),))
+                data_table.end_table_last_footer()
 
-        if len(unsigned_agents) > 0:
+                unsigned_agents = []
 
-            for plist in unsigned_agents:
-                for key, value in plist.items():
-                    if '.plist' in key:
-                        plist_name = key
-                        with doc.create(Subsubsection(f'UNSIGNED: {plist_name}')):
-                            with doc.create(MiniPage(width=r"0.5\textwidth")):
-                                append_plist_to_doc(doc, plist[plist_name])
+                for la in launch_daemons:
 
-                            doc.append(NewLine())
+                    verification = la['plist_executable']['codesign']['verification']
+                    if 'valid on disk' in verification[0]:
+                        signature = 'Signed'
+                    else:
+                        signature = 'Unsigned'
 
-                            doc.append(bold('File Type: '))
-                            # The filetype node contains the full path of the file - we dont need to print that
-                            # so we find the first semidot and only print the information found after that.
-                            file_type = str(plist['plist_executable']['metadata']['filetype']).rstrip()
-                            split_index = file_type.find(':') + 1
-                            doc.append(file_type[split_index:])
+                        unsigned_agents.append(la)
 
-                            doc.append(NewLine())
+                    data_table.add_row([la['filepath'], ""])
 
-                            doc.append(bold('MD5: '))
-                            doc.append(plist['plist_executable']['metadata']['md5'])
+                    plist_exe_path = split_long_lines(la['plist_executable']['metadata']['file_path'], '/', 80)
 
-                            doc.append(NewLine())
+                    data_table.add_row([plist_exe_path, signature])
+                    data_table.add_hline()
 
-                            doc.append(bold('SHA1: '))
-                            doc.append(plist['plist_executable']['metadata']['sha1'])
+            if len(unsigned_agents) > 0:
 
-                            doc.append(NewLine())
+                for plist in unsigned_agents:
+                    for key, value in plist.items():
+                        if '.plist' in key:
+                            plist_name = key
+                            with doc.create(Subsubsection(f'UNSIGNED: {plist_name}')):
+                                with doc.create(MiniPage(width=r"0.5\textwidth")):
+                                    append_plist_to_doc(doc, plist[plist_name])
 
-                            doc.append(bold('SHA256: '))
-                            doc.append(plist['plist_executable']['metadata']['sha256'])
+                                doc.append(NewLine())
 
-                            doc.append(NewLine())
-                            doc.append(NewLine())
+                                doc.append(bold('File Type: '))
+                                # The filetype node contains the full path of the file - we dont need to print that
+                                # so we find the first semidot and only print the information found after that.
+                                file_type = str(plist['plist_executable']['metadata']['filetype']).rstrip()
+                                split_index = file_type.find(':') + 1
+                                doc.append(file_type[split_index:])
+
+                                doc.append(NewLine())
+
+                                doc.append(bold('MD5: '))
+                                doc.append(plist['plist_executable']['metadata']['md5'])
+
+                                doc.append(NewLine())
+
+                                doc.append(bold('SHA1: '))
+                                doc.append(plist['plist_executable']['metadata']['sha1'])
+
+                                doc.append(NewLine())
+
+                                doc.append(bold('SHA256: '))
+                                doc.append(plist['plist_executable']['metadata']['sha256'])
+
+                                doc.append(NewLine())
+                                doc.append(NewLine())
 
 
 
@@ -415,71 +418,75 @@ def launch_agents_subsection(doc: Document, data_dict: dict):
 
         launch_agents = data_dict["launch_agents"]["data"]
 
-        # Generate data table
-        with doc.create(LongTable("| p{0.8\linewidth} | p{0.1\linewidth} |", row_height=1.5)) as data_table:
-            headers = ["File Path", "Codesign"]
-            data_table.add_hline()
-            data_table.add_row(headers, mapper=bold)
-            data_table.add_hline()
-            data_table.end_table_header()
-            data_table.add_hline()
-            data_table.add_row((MultiColumn(len(headers), align='r',
-                                            data=italic('Continued on Next Page')),))
-            data_table.end_table_footer()
-            data_table.add_hline()
-            data_table.add_row((MultiColumn(len(headers), align='r',
-                                            data=''),))
-            data_table.end_table_last_footer()
-
-            unsigned_agents = []
-
-            for la in launch_agents:
-
-                verification = la['plist_executable']['codesign']['verification']
-                if 'valid on disk' in verification[0]:
-                    signature = 'Signed'
-                else:
-                    signature = 'Unsigned'
-
-                    unsigned_agents.append(la)
-
-                data_table.add_row([la['filepath'], ""])
-
-                plist_exe_path = split_long_lines(la['plist_executable']['metadata']['file_path'], '/', 90)
-
-                data_table.add_row([plist_exe_path, signature])
+        doc.append(bold(f"There were {len(launch_agents)} Launch Agents found on the host system."))
+        doc.append(NewLine())
+        # Only generate the table if there is any data to display.
+        if launch_agents:
+            # Generate data table
+            with doc.create(LongTable("| p{0.8\linewidth} | p{0.1\linewidth} |", row_height=1.5)) as data_table:
+                headers = ["File Path", "Codesign"]
                 data_table.add_hline()
+                data_table.add_row(headers, mapper=bold)
+                data_table.add_hline()
+                data_table.end_table_header()
+                data_table.add_hline()
+                data_table.add_row((MultiColumn(len(headers), align='r',
+                                                data=italic('Continued on Next Page')),))
+                data_table.end_table_footer()
+                data_table.add_hline()
+                data_table.add_row((MultiColumn(len(headers), align='r',
+                                                data=''),))
+                data_table.end_table_last_footer()
+
+                unsigned_agents = []
+
+                for la in launch_agents:
+
+                    verification = la['plist_executable']['codesign']['verification']
+                    if 'valid on disk' in verification[0]:
+                        signature = 'Signed'
+                    else:
+                        signature = 'Unsigned'
+
+                        unsigned_agents.append(la)
+
+                    data_table.add_row([la['filepath'], ""])
+
+                    plist_exe_path = split_long_lines(la['plist_executable']['metadata']['file_path'], '/', 90)
+
+                    data_table.add_row([plist_exe_path, signature])
+                    data_table.add_hline()
 
 
-        if len(unsigned_agents) > 0:
+            if len(unsigned_agents) > 0:
 
-            for plist in unsigned_agents:
-                for key, value in plist.items():
-                    if '.plist' in key:
-                        plist_name = key
-                        with doc.create(Subsubsection(f'UNSIGNED: {plist_name}')):
-                            with doc.create(MiniPage(width=r"0.5\textwidth")):
-                                append_plist_to_doc(doc, plist[plist_name])
+                for plist in unsigned_agents:
+                    for key, value in plist.items():
+                        if '.plist' in key:
+                            plist_name = key
+                            with doc.create(Subsubsection(f'UNSIGNED: {plist_name}')):
+                                with doc.create(MiniPage(width=r"0.5\textwidth")):
+                                    append_plist_to_doc(doc, plist[plist_name])
 
-                            doc.append(NewLine())
-                            doc.append(bold('File Type: '))
+                                doc.append(NewLine())
+                                doc.append(bold('File Type: '))
 
-                            # The filetype node contains the full path of the file - we dont need to print that
-                            # so we find the first semidot and only print the information found after that.
-                            file_type = str(plist['plist_executable']['metadata']['filetype'])
-                            split_index = file_type.find(':') + 1
+                                # The filetype node contains the full path of the file - we dont need to print that
+                                # so we find the first semidot and only print the information found after that.
+                                file_type = str(plist['plist_executable']['metadata']['filetype'])
+                                split_index = file_type.find(':') + 1
 
-                            doc.append(file_type[split_index:])
-                            doc.append(bold('MD5: '))
-                            doc.append(plist['plist_executable']['metadata']['md5'])
-                            doc.append(NewLine())
-                            doc.append(bold('SHA1: '))
-                            doc.append(plist['plist_executable']['metadata']['sha1'])
-                            doc.append(NewLine())
-                            doc.append(bold('SHA256: '))
-                            doc.append(plist['plist_executable']['metadata']['sha256'])
-                            doc.append(NewLine())
-                            doc.append(NewLine())
+                                doc.append(file_type[split_index:])
+                                doc.append(bold('MD5: '))
+                                doc.append(plist['plist_executable']['metadata']['md5'])
+                                doc.append(NewLine())
+                                doc.append(bold('SHA1: '))
+                                doc.append(plist['plist_executable']['metadata']['sha1'])
+                                doc.append(NewLine())
+                                doc.append(bold('SHA256: '))
+                                doc.append(plist['plist_executable']['metadata']['sha256'])
+                                doc.append(NewLine())
+                                doc.append(NewLine())
 
 
 

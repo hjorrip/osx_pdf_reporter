@@ -4,7 +4,7 @@ RUN apt-get update && apt-get install -y latexmk && apt-get install -y texlive-l
 
 RUN git clone https://github.com/hjorrip/osx_pdf_reporter
 
-RUN echo "#!/bin/bash" >> /osx_pdf_reporter/osxrun.sh
+RUN echo "#!/bin/bash" >> /osx_pdf_reporter/run.sh
 RUN echo "git pull && python /osx_pdf_reporter/app/main.py" >> run.sh
 RUN chmod +x run.sh
 

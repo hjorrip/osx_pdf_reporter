@@ -250,9 +250,9 @@ def running_processes_subsection(doc: Document, data_dict: dict):
 
                         data_table.add_row(["PPID", process['PPID']])
                         data_table.add_hline()
-                        data_table.add_row(["Program", process_dict[process['PPID']]['PROGRAM']])
+                        data_table.add_row(["Program", line_wrapper(process_dict[process['PPID']]['PROGRAM'])])
                         data_table.add_hline()
-                        data_table.add_row(["Arguments", process_dict[process['PPID']]['ARG']])
+                        data_table.add_row(["Arguments", line_wrapper(process_dict[process['PPID']]['ARG'])])
 
 
 

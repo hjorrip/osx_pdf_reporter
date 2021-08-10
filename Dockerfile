@@ -2,7 +2,6 @@ FROM python:3.8
 
 RUN apt-get update && apt-get install -y latexmk && apt-get install -y texlive-latex-extra
 
-<<<<<<< HEAD
 RUN mkdir /osxreporter
 
 WORKDIR /osxreporter

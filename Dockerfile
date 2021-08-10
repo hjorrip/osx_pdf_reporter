@@ -7,8 +7,7 @@ RUN git clone https://github.com/hjorrip/osx_pdf_reporter
 WORKDIR /osx_pdf_reporter
 
 RUN echo "#!/bin/bash" >> run.sh
-RUN echo "git pull" >> run.sh
-RUN echo "python /osx_pdf_reporter/app/main.py"
+RUN echo "git pull && python /osx_pdf_reporter/app/main.py" >> run.sh
 RUN chmod +x run.sh
 
 RUN pip install -r /osx_pdf_reporter/app/requirements.txt

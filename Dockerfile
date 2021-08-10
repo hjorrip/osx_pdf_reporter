@@ -14,4 +14,3 @@ RUN pip install -r /osx_pdf_reporter/app/requirements.txt
 
 ENTRYPOINT ["/osx_pdf_reporter/run.sh"]
 
-CMD ["defaultarg"]

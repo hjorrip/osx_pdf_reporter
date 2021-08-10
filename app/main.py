@@ -3,10 +3,12 @@ from modules import system_defences, user_accounts, persistences
 from modules.appendix import appendix
 from modules.network import network
 from modules.processes import processes
+import sys
 
 if __name__ == '__main__':
 
-    
+    print(sys.argv[1])
+
     geometry_options = {
         "head": "40pt",
         "margin": "0.5in",

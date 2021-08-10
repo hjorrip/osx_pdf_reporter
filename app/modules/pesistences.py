@@ -181,43 +181,49 @@ def login_items_subsection(doc: Document, data_dict: dict):
 
         login_items_list = data_dict["login_items"]["data"]
 
-        # Generate data table
-        with doc.create(LongTable("l|c", row_height=1.5)) as data_table:
-            headers = ["File Path", "Codesign"]
-            data_table.add_hline()
-            data_table.add_row(headers, mapper=bold)
-            data_table.add_hline()
-            data_table.end_table_header()
-            data_table.add_hline()
-            data_table.add_row((MultiColumn(len(headers), align='r',
-                                            data=italic('Continued on Next Page')),))
-            data_table.end_table_footer()
-            data_table.add_hline()
-            data_table.add_row((MultiColumn(len(headers), align='r',
-                                            data=''),))
-            data_table.end_table_last_footer()
+        doc.append(bold(f"There were {len(login_items_list)} Launch Agents found on the host system."))
+        doc.append(NewLine())
 
-            unsigned_items = []
+        # This works???
 
-            for li in login_items_list:
+        # Only generate the table if there is any data to display.
+        if login_items_list:
+            with doc.create(LongTable("l|c", row_height=1.5)) as data_table:
+                headers = ["File Path", "Codesign"]
+                data_table.add_hline()
+                data_table.add_row(headers, mapper=bold)
+                data_table.add_hline()
+                data_table.end_table_header()
+                data_table.add_hline()
+                data_table.add_row((MultiColumn(len(headers), align='r',
+                                                data=italic('Continued on Next Page')),))
+                data_table.end_table_footer()
+                data_table.add_hline()
+                data_table.add_row((MultiColumn(len(headers), align='r',
+                                                data=''),))
+                data_table.end_table_last_footer()
 
-                verification = li['codesign']['verification']
-                if 'valid on disk' in verification[0]:
-                    signature = 'signed'
-                else:
-                    signature = 'unsigned'
+                unsigned_items = []
 
-                    unsigned_items.append(li)
+                for li in login_items_list:
 
-                data_table.add_row([li['path'], signature])
+                    verification = li['codesign']['verification']
+                    if 'valid on disk' in verification[0]:
+                        signature = 'signed'
+                    else:
+                        signature = 'unsigned'
 
-        if len(unsigned_items) == 0:
-            doc.append(bold('No unsigned login items detected.'))
+                        unsigned_items.append(li)
 
-        # The info.plist are quite too large to include in the report.
-        else:
-            doc.append("Number of unsigned login items detected: ")
-            doc.append(bold(str(len(unsigned_items))))
+                    data_table.add_row([li['path'], signature])
+
+            if not unsigned_items:
+                doc.append(bold('No unsigned login items detected.'))
+
+            # The info.plist are quite too large to include in the report.
+            else:
+                doc.append("Number of unsigned login items detected: ")
+                doc.append(bold(str(len(unsigned_items))))
 
 
 def kernel_extensions_subsection(doc: Document, data_dict: dict):

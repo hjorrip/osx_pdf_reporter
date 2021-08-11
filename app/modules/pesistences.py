@@ -21,7 +21,7 @@ def persistences(doc: Document, data_location: str, args):
 
     # Add the LaunchAgents SubSection to the Docuement
     launch_agents_subsection(doc, data_dict)
-    launch_daemons_subsection(doc, data_dict)
+    launch_daemons_subsection(doc, data_dict, args)
     cron_tabs_subsection(doc, data_dict)
     kernel_extensions_subsection(doc, data_dict)
     login_items_subsection(doc, data_dict)

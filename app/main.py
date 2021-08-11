@@ -18,6 +18,9 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
+    if args.verbose:
+        print("VERBOSE!!!")
+
     geometry_options = {
         "head": "40pt",
         "margin": "0.5in",
@@ -33,7 +36,7 @@ if __name__ == '__main__':
 
     system_defences(doc, data_location)
     user_accounts(doc, data_location)
-    persistences(doc, data_location, args)
+    persistences(doc, data_location)
     network(doc, data_location)
     processes(doc, data_location)
 

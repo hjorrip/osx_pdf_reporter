@@ -4,7 +4,7 @@ from pylatex.utils import *
 from modules.helpers import append_plist_to_doc, split_long_lines
 
 
-def persistences(doc: Document, data_location: str, args):
+def persistences(doc: Document, data_location: str):
 
     doc.append(NewPage())
 
@@ -21,7 +21,7 @@ def persistences(doc: Document, data_location: str, args):
 
     # Add the LaunchAgents SubSection to the Docuement
     launch_agents_subsection(doc, data_dict)
-    launch_daemons_subsection(doc, data_dict, args)
+    launch_daemons_subsection(doc, data_dict)
     cron_tabs_subsection(doc, data_dict)
     kernel_extensions_subsection(doc, data_dict)
     login_items_subsection(doc, data_dict)
@@ -314,7 +314,7 @@ def cron_tabs_subsection(doc: Document, data_dict: dict):
 
 
 
-def launch_daemons_subsection(doc: Document, data_dict: dict, args):
+def launch_daemons_subsection(doc: Document, data_dict: dict):
     with doc.create(Subsection('LaunchDaemons')):
         doc.append("LaunchDaemons only exist at the computer and system level, and "
                    "technically are reserved for persistent code that does not interact with the user - "
@@ -359,7 +359,7 @@ def launch_daemons_subsection(doc: Document, data_dict: dict, args):
                     verification = la['plist_executable']['codesign']['verification']
                     if 'valid on disk' in verification[0]:
                         signature = 'Signed'
-                        if args.verbose:
+                        if True:
                             # If verbose version of the report is requested, we add the launchagent to the
                             # Unsigned list, even if it's signed, to generate more details about that specific
                             # LaunchAgent.

@@ -18,8 +18,8 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    if args.verbose:
-        print("VERBOSE!!!")
+    #if args.verbose:
+    #    print("VERBOSE!!!")
 
     geometry_options = {
         "head": "40pt",

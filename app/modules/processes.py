@@ -200,7 +200,7 @@ def running_processes_subsection(doc: Document, data_dict: dict, args):
 
 
 
-def launchctl_list_subsection(doc: Document, data_dict: dict):
+def launchctl_list_subsection(doc: Document, data_dict: dict, args):
 
     launchctl_list_data = data_dict["launchctl_list"]["data"]
 
@@ -422,7 +422,7 @@ def launchctl_list_subsection(doc: Document, data_dict: dict):
 
 
 
-def running_applications_subsection(doc: Document, data_dict: dict):
+def running_applications_subsection(doc: Document, data_dict: dict, args):
     with doc.create(Subsection('Running Applications')):
         doc.append("Shows the application list and information about each running application. Bash command: 'lsappinfo list\n")
         doc.append('\n')

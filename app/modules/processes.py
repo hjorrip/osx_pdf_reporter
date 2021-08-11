@@ -6,7 +6,7 @@ from pylatex.utils import *
 from modules.helpers import append_plist_to_doc, split_long_lines, line_wrapper
 
 
-def processes(doc: Document, data_location: str):
+def processes(doc: Document, data_location: str, args):
 
     doc.append(NewPage())
 
@@ -60,11 +60,7 @@ def open_files(doc:Document, data_dict: dict):
 
 
 
-def running_processes_subsection(doc: Document, data_dict: dict):
-
-    # TODO: Implement flags to flip this bit when requested
-    verbose = False
-
+def running_processes_subsection(doc: Document, data_dict: dict, args):
 
     running_processes_data = data_dict["running_processes"]["data"]
 
@@ -113,96 +109,43 @@ def running_processes_subsection(doc: Document, data_dict: dict):
         doc.append(NewLine())
         doc.append(NewLine())
 
-        if verbose:
-
-            for entry in user_spawned_processes:
-
-                path = str(entry['PROGRAM']).split("/")
-                program_name = path[-1]
-
-                with doc.create(Subsubsection(program_name)):
-
-                    # TODO Working on table formatting - sometimes the letters go off page
-                    # Generate data table
-                    with doc.create(LongTable("| p{0.1\linewidth} | p{0.8\linewidth} |", row_height=1.5)) as data_table:
-                        nr_of_columns = 2
-
-                        data_table.add_hline()
-                        data_table.add_row((MultiColumn(nr_of_columns, align='r',
-                                                        data=italic('Continued on Next Page')),))
-                        data_table.end_table_footer()
-                        data_table.add_hline()
-                        data_table.add_row((MultiColumn(nr_of_columns, align='r',
-                                                        data=''),))
-                        data_table.end_table_last_footer()
-
-                        data_table.add_hline()
-                        data_table.add_row(["Spawned by", entry['USER']])
-                        data_table.add_hline()
-
-                        data_table.add_row(["PID", entry['PID']])
-                        data_table.add_hline()
-
-
-                        program_path = entry['PROGRAM']
-
-                        data_table.add_row(["Program", line_wrapper(program_path)])
-                        data_table.add_hline()
-
-
-
-                        command = entry['COMMAND']
-
-                        arguments = command.replace(program_path, '')
-
-                        data_table.add_row(["Arguments", line_wrapper(arguments)])
-
-                        data_table.add_hline()
-
-                        data_table.add_hline()
-
-
-                        data_table.add_row(["PPID", entry['PPID']])
-                        data_table.add_hline()
-                        data_table.add_row(["Program", line_wrapper(process_dict[entry['PPID']]['PROGRAM'])])
-                        data_table.add_hline()
-                        data_table.add_row(["Arguments", line_wrapper(process_dict[entry['PPID']]['ARG'])])
-        else:
             # Generate data table
-            with doc.create(LongTable("| p{0.05\linewidth}| p{0.05\linewidth} | p{0.7\linewidth} | p{0.1\linewidth} | ",
-                                      row_height=1.5)) as data_table:
-                headers = ["PPID", "PID", "Program", "Codesign"]
-                data_table.add_hline()
-                data_table.add_row(headers, mapper=bold)
-                data_table.add_hline()
-                data_table.end_table_header()
-                data_table.add_hline()
-                data_table.add_row((MultiColumn(len(headers), align='r',
-                                                data=italic('Continued on Next Page')),))
-                data_table.end_table_footer()
-                data_table.add_hline()
-                data_table.add_row((MultiColumn(len(headers), align='r',
-                                                data=''),))
-                data_table.end_table_last_footer()
+        with doc.create(LongTable("| p{0.05\linewidth}| p{0.05\linewidth} | p{0.7\linewidth} | p{0.1\linewidth} | ",
+                                    row_height=1.5)) as data_table:
+            headers = ["PPID", "PID", "Program", "Codesign"]
+            data_table.add_hline()
+            data_table.add_row(headers, mapper=bold)
+            data_table.add_hline()
+            data_table.end_table_header()
+            data_table.add_hline()
+            data_table.add_row((MultiColumn(len(headers), align='r',
+                                            data=italic('Continued on Next Page')),))
+            data_table.end_table_footer()
+            data_table.add_hline()
+            data_table.add_row((MultiColumn(len(headers), align='r',
+                                            data=''),))
+            data_table.end_table_last_footer()
 
 
-                for process in user_spawned_processes:
+            for process in user_spawned_processes:
 
-                    pid = process['PID']
-                    ppid = process['PPID']
-                    program = process['PROGRAM']
+                pid = process['PID']
+                ppid = process['PPID']
+                program = process['PROGRAM']
 
-                    verification = process['codesign']['verification']
-                    if 'valid on disk' in verification[0]:
-                        signature = 'Signed'
-
-                    else:
-                        signature = bold('Unsigned')
+                verification = process['codesign']['verification']
+                if 'valid on disk' in verification[0]:
+                    signature = 'Signed'
+                    if args.verbose:
+                        # If we want verbose report, we generate an "unsigned report" for all entries
                         unsigned_processes.append(process)
+                else:
+                    signature = bold('Unsigned')
+                    unsigned_processes.append(process)
 
-                    data_table.add_row([ppid, pid, line_wrapper(program), signature])
+                data_table.add_row([ppid, pid, line_wrapper(program), signature])
 
-                    data_table.add_hline()
+                data_table.add_hline()
 
 
 

@@ -4,7 +4,7 @@ from pylatex.utils import *
 from modules.helpers import append_plist_to_doc, split_long_lines
 
 
-def persistences(doc: Document, data_location: str):
+def persistences(doc: Document, data_location: str, args):
 
     doc.append(NewPage())
 
@@ -162,7 +162,7 @@ def periodics_subsection(doc: Document, data_dict: dict):
 
 
 
-def login_items_subsection(doc: Document, data_dict: dict):
+def login_items_subsection(doc: Document, data_dict: dict, args):
     with doc.create(Subsection('Login Items')):
         doc.append("Changes made by Apple to Login Items have, resulted in more attractive opportunities "
                    "for malware persistence. Once upon a time, Login Items were easily enumerated through "
@@ -210,6 +210,12 @@ def login_items_subsection(doc: Document, data_dict: dict):
                     verification = li['codesign']['verification']
                     if 'valid on disk' in verification[0]:
                         signature = 'signed'
+                        # If verbose version of the report is requested, we add the launchagent to the
+                        # Unsigned list, even if it's signed, to generate more details about that specific
+                        # LaunchAgent.
+                        if args.verbose:
+                            unsigned_items.append(li)
+
                     else:
                         signature = 'unsigned'
 
@@ -308,7 +314,7 @@ def cron_tabs_subsection(doc: Document, data_dict: dict):
 
 
 
-def launch_daemons_subsection(doc: Document, data_dict: dict):
+def launch_daemons_subsection(doc: Document, data_dict: dict, args):
     with doc.create(Subsection('LaunchDaemons')):
         doc.append("LaunchDaemons only exist at the computer and system level, and "
                    "technically are reserved for persistent code that does not interact with the user - "
@@ -353,6 +359,11 @@ def launch_daemons_subsection(doc: Document, data_dict: dict):
                     verification = la['plist_executable']['codesign']['verification']
                     if 'valid on disk' in verification[0]:
                         signature = 'Signed'
+                        if args.verbose:
+                            # If verbose version of the report is requested, we add the launchagent to the
+                            # Unsigned list, even if it's signed, to generate more details about that specific
+                            # LaunchAgent.
+                            unsigned_agents.append(la)
                     else:
                         signature = 'Unsigned'
 
@@ -405,7 +416,7 @@ def launch_daemons_subsection(doc: Document, data_dict: dict):
 
 
 
-def launch_agents_subsection(doc: Document, data_dict: dict):
+def launch_agents_subsection(doc: Document, data_dict: dict, args):
     with doc.create(Subsection('LaunchAgents')):
         doc.append("By far the most common way malware persists on macOS is via a LaunchAgent. "
                    "Each user on a Mac can have a LaunchAgents folder in their own Library folder "
@@ -445,12 +456,18 @@ def launch_agents_subsection(doc: Document, data_dict: dict):
                 data_table.end_table_last_footer()
 
                 unsigned_agents = []
+                
 
                 for la in launch_agents:
 
                     verification = la['plist_executable']['codesign']['verification']
                     if 'valid on disk' in verification[0]:
                         signature = 'Signed'
+                        # If verbose version of the report is requested, we add the launchagent to the
+                        # Unsigned list, even if it's signed, to generate more details about that specific
+                        # LaunchAgent.
+                        if args.vebose:
+                            unsigned_agents.append(la)
                     else:
                         signature = 'Unsigned'
 

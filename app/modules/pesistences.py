@@ -4,7 +4,7 @@ from pylatex.utils import *
 from modules.helpers import append_plist_to_doc, split_long_lines
 
 
-def persistences(doc: Document, data_location: str):
+def persistences(doc: Document, data_location: str, args):
 
     doc.append(NewPage())
 
@@ -314,7 +314,7 @@ def cron_tabs_subsection(doc: Document, data_dict: dict):
 
 
 
-def launch_daemons_subsection(doc: Document, data_dict: dict):
+def launch_daemons_subsection(doc: Document, data_dict: dict, args):
     with doc.create(Subsection('LaunchDaemons')):
         doc.append("LaunchDaemons only exist at the computer and system level, and "
                    "technically are reserved for persistent code that does not interact with the user - "
@@ -359,7 +359,7 @@ def launch_daemons_subsection(doc: Document, data_dict: dict):
                     verification = la['plist_executable']['codesign']['verification']
                     if 'valid on disk' in verification[0]:
                         signature = 'Signed'
-                        if True:
+                        if args.verbose:
                             # If verbose version of the report is requested, we add the launchagent to the
                             # Unsigned list, even if it's signed, to generate more details about that specific
                             # LaunchAgent.
@@ -382,7 +382,7 @@ def launch_daemons_subsection(doc: Document, data_dict: dict):
                     for key, value in plist.items():
                         if '.plist' in key:
                             plist_name = key
-                            with doc.create(Subsubsection(f'UNSIGNED: {plist_name}')):
+                            with doc.create(Subsubsection(f'{plist_name}')):
                                 with doc.create(MiniPage(width=r"0.5\textwidth")):
                                     append_plist_to_doc(doc, plist[plist_name])
 

@@ -487,7 +487,7 @@ def launch_agents_subsection(doc: Document, data_dict: dict, args):
                     for key, value in plist.items():
                         if '.plist' in key:
                             plist_name = key
-                            with doc.create(Subsubsection(f'UNSIGNED: {plist_name}')):
+                            with doc.create(Subsubsection(f'{plist_name}')):
                                 with doc.create(MiniPage(width=r"0.5\textwidth")):
                                     append_plist_to_doc(doc, plist[plist_name])
 

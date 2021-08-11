@@ -290,7 +290,7 @@ def kernel_extensions_subsection(doc: Document, data_dict: dict, args):
             doc.append(bold(str(len(unsigned_kex))))
 
 
-def cron_tabs_subsection(doc: Document, data_dict: dict):
+def cron_tabs_subsection(doc: Document, data_dict: dict, args):
     with doc.create(Subsection('Cron Tabs')):
 
         doc.append("Malicious cron tabs (cron jobs) are used by AdLoad and Mughthesec malware, among others, to "

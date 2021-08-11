@@ -31,7 +31,7 @@ def persistences(doc: Document, data_location: str, args):
     emond_clients_subsection(doc, data_dict, args)
     configuration_profiles_subsection(doc, data_dict, args)
 
-def configuration_profiles_subsection(doc: Document, data_dict: dict):
+def configuration_profiles_subsection(doc: Document, data_dict: dict, args):
     with doc.create(Subsection('Configuration Profiles')):
         doc.append("Profiles are intended for organizational use to allow IT admins to manage machines "
                    "for their users, but their potential for misuse has already been spotted by malware authors. "
@@ -48,7 +48,7 @@ def configuration_profiles_subsection(doc: Document, data_dict: dict):
         # TODO: Add a configuration_profiles to the system and update the report to include more details when detected
         doc.append(bold(str(len(configuration_profiles_data_list))))
 
-def emond_clients_subsection(doc: Document, data_dict: dict):
+def emond_clients_subsection(doc: Document, data_dict: dict, args):
     with doc.create(Subsection('Emond Clients')):
         doc.append("Sometime around OSX 10.5 Leopard, Apple introduced a logging mechanism called emond. "
                    "It appears it was never fully developed, and development may have been abandoned by "
@@ -68,7 +68,7 @@ def emond_clients_subsection(doc: Document, data_dict: dict):
         doc.append(bold(str(len(emond_clients_data_list))))
 
 
-def at_jobs_subsection(doc: Document, data_dict: dict):
+def at_jobs_subsection(doc: Document, data_dict: dict, args):
     with doc.create(Subsection('At jobs')):
         doc.append("A much less well-known mechanism is at jobs. While these only run once and are not "
                    "enabled by default, they are a sneaky way to run some code on restart. "
@@ -86,7 +86,7 @@ def at_jobs_subsection(doc: Document, data_dict: dict):
         doc.append(bold(str(len(at_jobs_data_list))))
 
 
-def hooks_subsection(doc: Document, data_dict: dict):
+def hooks_subsection(doc: Document, data_dict: dict, args):
     with doc.create(Subsection('Hooks')):
         doc.append("LoginHooks and LogoutHooks have been around for years and are rarely used these days, "
                    "but are still a perfectly viable way of running a persistence script on macOS Mojave. "
@@ -102,7 +102,7 @@ def hooks_subsection(doc: Document, data_dict: dict):
         doc.append(bold(str(len(hooks_data_list))))
 
 
-def periodics_subsection(doc: Document, data_dict: dict):
+def periodics_subsection(doc: Document, data_dict: dict, args):
     with doc.create(Subsection('Periodics')):
         doc.append("Periodics are system scripts that are generally used or maintenance and run on daily, "
                    "weekly and monthly schedule. Unless admins are using their own custom periodic "
@@ -232,7 +232,7 @@ def login_items_subsection(doc: Document, data_dict: dict, args):
                 doc.append(bold(str(len(unsigned_items))))
 
 
-def kernel_extensions_subsection(doc: Document, data_dict: dict):
+def kernel_extensions_subsection(doc: Document, data_dict: dict, args):
     with doc.create(Subsection('Kernel Extension')):
         doc.append("Kernel extensions are widely used by legitimate software for persistent behavior, "
                    "and we've seen them also used by so-called PUP software like MacKeeper An open-source "
@@ -290,7 +290,7 @@ def kernel_extensions_subsection(doc: Document, data_dict: dict):
             doc.append(bold(str(len(unsigned_kex))))
 
 
-def cron_tabs_subsection(doc: Document, data_dict: dict):
+def cron_tabs_subsection(doc: Document, data_dict: dict, args):
     with doc.create(Subsection('Cron Tabs')):
 
         doc.append("Malicious cron tabs (cron jobs) are used by AdLoad and Mughthesec malware, among others, to "

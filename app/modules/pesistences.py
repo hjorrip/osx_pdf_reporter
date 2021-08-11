@@ -20,16 +20,16 @@ def persistences(doc: Document, data_location: str, args):
                    "reboot to another.")
 
     # Add the LaunchAgents SubSection to the Docuement
-    launch_agents_subsection(doc, data_dict)
-    launch_daemons_subsection(doc, data_dict)
-    cron_tabs_subsection(doc, data_dict)
-    kernel_extensions_subsection(doc, data_dict)
-    login_items_subsection(doc, data_dict)
-    periodics_subsection(doc, data_dict)
-    hooks_subsection(doc, data_dict)
-    at_jobs_subsection(doc, data_dict)
-    emond_clients_subsection(doc, data_dict)
-    configuration_profiles_subsection(doc, data_dict)
+    launch_agents_subsection(doc, data_dict, args)
+    launch_daemons_subsection(doc, data_dict, args)
+    cron_tabs_subsection(doc, data_dict, args)
+    kernel_extensions_subsection(doc, data_dict, args)
+    login_items_subsection(doc, data_dict, args)
+    periodics_subsection(doc, data_dict, args)
+    hooks_subsection(doc, data_dict, args)
+    at_jobs_subsection(doc, data_dict, args)
+    emond_clients_subsection(doc, data_dict, args)
+    configuration_profiles_subsection(doc, data_dict, args)
 
 def configuration_profiles_subsection(doc: Document, data_dict: dict):
     with doc.create(Subsection('Configuration Profiles')):

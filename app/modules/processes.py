@@ -22,9 +22,9 @@ def processes(doc: Document, data_location: str, args):
                    "automatically drawn from this information, so it is up to the analyst to find anomalies "
                    "in these datasets.")
 
-        running_applications_subsection(doc, data_dict)
-        launchctl_list_subsection(doc, data_dict)
-        running_processes_subsection(doc, data_dict)
+        running_applications_subsection(doc, data_dict, args)
+        launchctl_list_subsection(doc, data_dict, args)
+        running_processes_subsection(doc, data_dict, args)
 
         #TODO: Delete/move
         #open_files(doc, files_dict)

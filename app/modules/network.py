@@ -4,7 +4,7 @@ from pylatex.utils import *
 from modules.helpers import append_plist_to_doc, split_long_lines
 
 
-def network(doc: Document, data_location: str, args):
+def network(doc: Document, data_location: str):
 
     doc.append(NewPage())
 

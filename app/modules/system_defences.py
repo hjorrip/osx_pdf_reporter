@@ -3,7 +3,7 @@ from pylatex import *
 from pylatex.utils import *
 
 
-def system_defences(doc: Document, data_location: str, args):
+def system_defences(doc: Document, data_location: str):
 
     with open(f'{data_location}/defences/defences.json') as json_file:
         data_dict = json.load(json_file)

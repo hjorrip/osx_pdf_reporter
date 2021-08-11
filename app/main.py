@@ -16,7 +16,6 @@ if __name__ == '__main__':
 
     parser.add_argument('-v', '--verbose', action="store_true", help="Generates a longer, more detailed version of the report.")
 
-
     args = parser.parse_args()
 
     geometry_options = {
@@ -32,11 +31,11 @@ if __name__ == '__main__':
     data_location = '/output'
 
 
-    system_defences(doc, data_location, args)
-    user_accounts(doc, data_location, args)
-    persistences(doc, data_location, args)
-    network(doc, data_location, args)
-    processes(doc, data_location, args)
+    system_defences(doc, data_location)
+    user_accounts(doc, data_location)
+    persistences(doc, data_location)
+    network(doc, data_location)
+    processes(doc, data_location)
 
     doc.generate_pdf(filepath=f"{data_location}/OSX Forensics Report", clean_tex=False)
 

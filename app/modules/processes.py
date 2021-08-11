@@ -6,7 +6,7 @@ from pylatex.utils import *
 from modules.helpers import append_plist_to_doc, split_long_lines, line_wrapper
 
 
-def processes(doc: Document, data_location: str, args):
+def processes(doc: Document, data_location: str):
 
     doc.append(NewPage())
 
@@ -22,9 +22,9 @@ def processes(doc: Document, data_location: str, args):
                    "automatically drawn from this information, so it is up to the analyst to find anomalies "
                    "in these datasets.")
 
-        running_applications_subsection(doc, data_dict, args)
-        launchctl_list_subsection(doc, data_dict, args)
-        running_processes_subsection(doc, data_dict, args)
+        running_applications_subsection(doc, data_dict)
+        launchctl_list_subsection(doc, data_dict)
+        running_processes_subsection(doc, data_dict)
 
         #TODO: Delete/move
         #open_files(doc, files_dict)
@@ -60,7 +60,7 @@ def open_files(doc:Document, data_dict: dict):
 
 
 
-def running_processes_subsection(doc: Document, data_dict: dict, args):
+def running_processes_subsection(doc: Document, data_dict: dict):
 
     running_processes_data = data_dict["running_processes"]["data"]
 
@@ -94,7 +94,6 @@ def running_processes_subsection(doc: Document, data_dict: dict, args):
 
     unsigned_processes = []
 
-    # ********* VERBOSE Reporting # *********
 
     with doc.create(Subsection('Running Processes')):
         doc.append("There were total ")
@@ -136,7 +135,7 @@ def running_processes_subsection(doc: Document, data_dict: dict, args):
                 verification = process['codesign']['verification']
                 if 'valid on disk' in verification[0]:
                     signature = 'Signed'
-                    if args.verbose:
+                    if True:
                         # If we want verbose report, we generate an "unsigned report" for all entries
                         unsigned_processes.append(process)
                 else:
@@ -200,7 +199,7 @@ def running_processes_subsection(doc: Document, data_dict: dict, args):
 
 
 
-def launchctl_list_subsection(doc: Document, data_dict: dict, args):
+def launchctl_list_subsection(doc: Document, data_dict: dict):
 
     launchctl_list_data = data_dict["launchctl_list"]["data"]
 
@@ -422,7 +421,7 @@ def launchctl_list_subsection(doc: Document, data_dict: dict, args):
 
 
 
-def running_applications_subsection(doc: Document, data_dict: dict, args):
+def running_applications_subsection(doc: Document, data_dict: dict):
     with doc.create(Subsection('Running Applications')):
         doc.append("Shows the application list and information about each running application. Bash command: 'lsappinfo list\n")
         doc.append('\n')

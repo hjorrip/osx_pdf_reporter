@@ -4,7 +4,7 @@ from pylatex.utils import *
 from modules.helpers import append_plist_to_doc, split_long_lines
 
 
-def persistences(doc: Document, data_location: str, args):
+def persistences(doc: Document, data_location: str):
 
     doc.append(NewPage())
 
@@ -20,18 +20,18 @@ def persistences(doc: Document, data_location: str, args):
                    "reboot to another.")
 
     # Add the LaunchAgents SubSection to the Docuement
-    launch_agents_subsection(doc, data_dict, args)
-    launch_daemons_subsection(doc, data_dict, args)
-    cron_tabs_subsection(doc, data_dict, args)
-    kernel_extensions_subsection(doc, data_dict, args)
-    login_items_subsection(doc, data_dict, args)
-    periodics_subsection(doc, data_dict, args)
-    hooks_subsection(doc, data_dict, args)
-    at_jobs_subsection(doc, data_dict, args)
-    emond_clients_subsection(doc, data_dict, args)
-    configuration_profiles_subsection(doc, data_dict, args)
+    launch_agents_subsection(doc, data_dict)
+    launch_daemons_subsection(doc, data_dict)
+    cron_tabs_subsection(doc, data_dict)
+    kernel_extensions_subsection(doc, data_dict)
+    login_items_subsection(doc, data_dict)
+    periodics_subsection(doc, data_dict)
+    hooks_subsection(doc, data_dict)
+    at_jobs_subsection(doc, data_dict)
+    emond_clients_subsection(doc, data_dict)
+    configuration_profiles_subsection(doc, data_dict)
 
-def configuration_profiles_subsection(doc: Document, data_dict: dict, args):
+def configuration_profiles_subsection(doc: Document, data_dict: dict):
     with doc.create(Subsection('Configuration Profiles')):
         doc.append("Profiles are intended for organizational use to allow IT admins to manage machines "
                    "for their users, but their potential for misuse has already been spotted by malware authors. "
@@ -48,7 +48,7 @@ def configuration_profiles_subsection(doc: Document, data_dict: dict, args):
         # TODO: Add a configuration_profiles to the system and update the report to include more details when detected
         doc.append(bold(str(len(configuration_profiles_data_list))))
 
-def emond_clients_subsection(doc: Document, data_dict: dict, args):
+def emond_clients_subsection(doc: Document, data_dict: dict):
     with doc.create(Subsection('Emond Clients')):
         doc.append("Sometime around OSX 10.5 Leopard, Apple introduced a logging mechanism called emond. "
                    "It appears it was never fully developed, and development may have been abandoned by "
@@ -68,7 +68,7 @@ def emond_clients_subsection(doc: Document, data_dict: dict, args):
         doc.append(bold(str(len(emond_clients_data_list))))
 
 
-def at_jobs_subsection(doc: Document, data_dict: dict, args):
+def at_jobs_subsection(doc: Document, data_dict: dict):
     with doc.create(Subsection('At jobs')):
         doc.append("A much less well-known mechanism is at jobs. While these only run once and are not "
                    "enabled by default, they are a sneaky way to run some code on restart. "
@@ -86,7 +86,7 @@ def at_jobs_subsection(doc: Document, data_dict: dict, args):
         doc.append(bold(str(len(at_jobs_data_list))))
 
 
-def hooks_subsection(doc: Document, data_dict: dict, args):
+def hooks_subsection(doc: Document, data_dict: dict):
     with doc.create(Subsection('Hooks')):
         doc.append("LoginHooks and LogoutHooks have been around for years and are rarely used these days, "
                    "but are still a perfectly viable way of running a persistence script on macOS Mojave. "
@@ -102,7 +102,7 @@ def hooks_subsection(doc: Document, data_dict: dict, args):
         doc.append(bold(str(len(hooks_data_list))))
 
 
-def periodics_subsection(doc: Document, data_dict: dict, args):
+def periodics_subsection(doc: Document, data_dict: dict):
     with doc.create(Subsection('Periodics')):
         doc.append("Periodics are system scripts that are generally used or maintenance and run on daily, "
                    "weekly and monthly schedule. Unless admins are using their own custom periodic "
@@ -162,7 +162,7 @@ def periodics_subsection(doc: Document, data_dict: dict, args):
 
 
 
-def login_items_subsection(doc: Document, data_dict: dict, args):
+def login_items_subsection(doc: Document, data_dict: dict):
     with doc.create(Subsection('Login Items')):
         doc.append("Changes made by Apple to Login Items have, resulted in more attractive opportunities "
                    "for malware persistence. Once upon a time, Login Items were easily enumerated through "
@@ -213,7 +213,7 @@ def login_items_subsection(doc: Document, data_dict: dict, args):
                         # If verbose version of the report is requested, we add the launchagent to the
                         # Unsigned list, even if it's signed, to generate more details about that specific
                         # LaunchAgent.
-                        if args.verbose:
+                        if True:
                             unsigned_items.append(li)
 
                     else:
@@ -232,7 +232,7 @@ def login_items_subsection(doc: Document, data_dict: dict, args):
                 doc.append(bold(str(len(unsigned_items))))
 
 
-def kernel_extensions_subsection(doc: Document, data_dict: dict, args):
+def kernel_extensions_subsection(doc: Document, data_dict: dict):
     with doc.create(Subsection('Kernel Extension')):
         doc.append("Kernel extensions are widely used by legitimate software for persistent behavior, "
                    "and we've seen them also used by so-called PUP software like MacKeeper An open-source "
@@ -290,7 +290,7 @@ def kernel_extensions_subsection(doc: Document, data_dict: dict, args):
             doc.append(bold(str(len(unsigned_kex))))
 
 
-def cron_tabs_subsection(doc: Document, data_dict: dict, args):
+def cron_tabs_subsection(doc: Document, data_dict: dict):
     with doc.create(Subsection('Cron Tabs')):
 
         doc.append("Malicious cron tabs (cron jobs) are used by AdLoad and Mughthesec malware, among others, to "
@@ -314,7 +314,7 @@ def cron_tabs_subsection(doc: Document, data_dict: dict, args):
 
 
 
-def launch_daemons_subsection(doc: Document, data_dict: dict, args):
+def launch_daemons_subsection(doc: Document, data_dict: dict):
     with doc.create(Subsection('LaunchDaemons')):
         doc.append("LaunchDaemons only exist at the computer and system level, and "
                    "technically are reserved for persistent code that does not interact with the user - "
@@ -359,7 +359,7 @@ def launch_daemons_subsection(doc: Document, data_dict: dict, args):
                     verification = la['plist_executable']['codesign']['verification']
                     if 'valid on disk' in verification[0]:
                         signature = 'Signed'
-                        if args.verbose:
+                        if True:
                             # If verbose version of the report is requested, we add the launchagent to the
                             # Unsigned list, even if it's signed, to generate more details about that specific
                             # LaunchAgent.
@@ -416,7 +416,7 @@ def launch_daemons_subsection(doc: Document, data_dict: dict, args):
 
 
 
-def launch_agents_subsection(doc: Document, data_dict: dict, args):
+def launch_agents_subsection(doc: Document, data_dict: dict):
     with doc.create(Subsection('LaunchAgents')):
         doc.append("By far the most common way malware persists on macOS is via a LaunchAgent. "
                    "Each user on a Mac can have a LaunchAgents folder in their own Library folder "
@@ -466,7 +466,7 @@ def launch_agents_subsection(doc: Document, data_dict: dict, args):
                         # If verbose version of the report is requested, we add the launchagent to the
                         # Unsigned list, even if it's signed, to generate more details about that specific
                         # LaunchAgent.
-                        if args.vebose:
+                        if True:
                             unsigned_agents.append(la)
                     else:
                         signature = 'Unsigned'
